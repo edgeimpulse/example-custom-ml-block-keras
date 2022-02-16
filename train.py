@@ -50,7 +50,7 @@ Y = np.load(y_file)[:,0]
 classes = np.max(Y)
 
 # get the shape of the input, and reshape the features
-MODEL_INPUT_SHAPE = tuple([ int(x) for x in args.input_shape.replace('(', '').replace(')', '').split(',') ])
+MODEL_INPUT_SHAPE = tuple([ int(x) for x in list(filter(None, args.input_shape.replace('(', '').replace(')', '').split(','))) ])
 X = X.reshape(tuple([ X.shape[0] ]) + MODEL_INPUT_SHAPE)
 
 # convert Y to a categorical vector
