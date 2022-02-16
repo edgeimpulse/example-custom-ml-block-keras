@@ -50,11 +50,8 @@ Y = np.load(y_file)[:,0]
 classes = np.max(Y)
 
 # get the shape of the input, and reshape the features
-MODEL_INPUT_SHAPE = tuple([ int(x) for x in args.input_shape.replace('(', '').replace(')', '').split(',') ])
+MODEL_INPUT_SHAPE = tuple([ int(x) for x in list(filter(None, args.input_shape.replace('(', '').replace(')', '').split(','))) ])
 X = X.reshape(tuple([ X.shape[0] ]) + MODEL_INPUT_SHAPE)
-
-# convert Y to a categorical vector
-Y = tf.keras.utils.to_categorical(Y - 1, classes)
 
 # split in train/validate set and convert into TF Dataset
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=args.validation_set_size, random_state=1)
@@ -71,7 +68,7 @@ model.add(Dense(20, activation='relu',
     activity_regularizer=tf.keras.regularizers.l1(0.00001)))
 model.add(Dense(10, activation='relu',
     activity_regularizer=tf.keras.regularizers.l1(0.00001)))
-model.add(Dense(classes, activation='softmax', name='y_pred'))
+model.add(Dense(1, name='y_pred'))
 
 # this controls the learning rate
 opt = Adam(learning_rate=args.learning_rate, beta_1=0.9, beta_2=0.999)
@@ -81,7 +78,7 @@ train_dataset_batch = train_dataset.batch(BATCH_SIZE, drop_remainder=False)
 validation_dataset_batch = validation_dataset.batch(BATCH_SIZE, drop_remainder=False)
 
 # train the neural network
-model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
+model.compile(loss='mean_squared_error', optimizer=opt)
 model.fit(train_dataset_batch, epochs=args.epochs, validation_data=validation_dataset_batch, verbose=2, callbacks=callbacks)
 
 print('')
