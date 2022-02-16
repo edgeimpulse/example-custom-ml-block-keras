@@ -1,0 +1,4 @@
+keras==2.7.0
+numpy==1.22.2
+scikit-learn==1.0.2
+tflite==2.4.0
