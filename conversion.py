@@ -100,7 +100,6 @@ def save_saved_model(model, out_directory):
                         'zip',
                         root_dir=os.path.dirname(saved_model_path),
                         base_dir='saved_model')
-    shutil.rmtree(saved_model_path)
 
     print('Saving saved model OK')
     print('')
