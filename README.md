@@ -1,6 +1,6 @@
 # Custom Keras ML block example for Edge Impulse
 
-This repository is an example on how to bring a [custom transfer learning model](https://docs.edgeimpulse.com/docs/adding-custom-transfer-learning-models) into Edge Impulse. This repository contains a small fully-connected model built in Keras & TensorFlow. If you want to see a more complex PyTorch example, see [edgeimpulse/yolov5](https://github.com/edgeimpulse/yolov5).
+This repository is an example on how to bring a [custom transfer learning model](https://docs.edgeimpulse.com/docs/adding-custom-transfer-learning-models) into Edge Impulse. This repository contains a small fully-connected model built in Keras & TensorFlow. If you want to see a more complex PyTorch example, see [edgeimpulse/yolov5](https://github.com/edgeimpulse/yolov5).  Or if you're looking for the PyTorch version of this repository, see [edgeimpulse/example-custom-ml-block-keras](https://github.com/edgeimpulse/example-custom-ml-block-pytorch).
 
 As a primer, read the [Adding custom transfer learning models](https://docs.edgeimpulse.com/docs/adding-custom-transfer-learning-models) page in the Edge Impulse docs.
 
