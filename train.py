@@ -31,9 +31,9 @@ if not os.path.exists(args.out_directory):
     os.mkdir(args.out_directory)
 
 # grab train/test set and convert into TF Dataset
-X_train = np.load(os.path.join(args.data_directory, 'X_split_train.npy'))
+X_train = np.load(os.path.join(args.data_directory, 'X_split_train.npy'), mmap_mode='r')
 Y_train = np.load(os.path.join(args.data_directory, 'Y_split_train.npy'))
-X_test = np.load(os.path.join(args.data_directory, 'X_split_test.npy'))
+X_test = np.load(os.path.join(args.data_directory, 'X_split_test.npy'), mmap_mode='r')
 Y_test = np.load(os.path.join(args.data_directory, 'Y_split_test.npy'))
 
 classes = Y_train.shape[1]
