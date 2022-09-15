@@ -1,6 +1,6 @@
-# Custom Keras ML block example for Edge Impulse
+# Custom EfficientNet example for Edge Impulse
 
-This repository is an example on how to bring a [custom machine learning model](https://docs.edgeimpulse.com/docs/adding-custom-transfer-learning-models) into Edge Impulse. This repository contains a small fully-connected model built in Keras & TensorFlow. If you want to see a more complex PyTorch example, see [edgeimpulse/yolov5](https://github.com/edgeimpulse/yolov5).  Or if you're looking for the PyTorch version of this repository, see [edgeimpulse/example-custom-ml-block-keras](https://github.com/edgeimpulse/example-custom-ml-block-pytorch).
+This repository is an example on how to bring EfficientNet (built using Keras) into Edge Impulse.
 
 As a primer, read the [Adding custom machine learning models](https://docs.edgeimpulse.com/docs/adding-custom-transfer-learning-models) page in the Edge Impulse docs.
 
@@ -12,14 +12,14 @@ You run this pipeline via Docker. This encapsulates all dependencies and package
 
 1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/).
 2. Install the [Edge Impulse CLI](https://docs.edgeimpulse.com/docs/edge-impulse-cli/cli-installation) v1.16.0 or higher.
-3. Create a new Edge Impulse project, and add data from the [continuous gestures](https://docs.edgeimpulse.com/docs/continuous-gestures) dataset.
-4. Under **Create impulse** add a 'Spectral features' processing block, and a random ML block.
+3. Create a new Edge Impulse project, and add an image dataset.
+4. Under **Create impulse**, set the resolution to **224x224**, then add a 'Image' processing block (make sure it's set to RGB), and a 'Transfer Learning (Images)' ML block.
 5. Open a command prompt or terminal window.
 6. Initialize the block:
 
     ```
     $ edge-impulse-blocks init
-    # Answer the questions, select "other" for 'What type of data does this model operate on?'
+    # Answer the questions, select "Image classification" for 'What type of data does this model operate on?'
     ```
 
 7. Fetch new data via:
@@ -31,13 +31,13 @@ You run this pipeline via Docker. This encapsulates all dependencies and package
 8. Build the container:
 
     ```
-    $ docker build -t custom-ml-keras .
+    $ docker build -t efficientnet .
     ```
 
 9. Run the container to test the script (you don't need to rebuild the container if you make changes):
 
     ```
-    $ docker run --rm -v $PWD:/app custom-ml-keras --data-directory /app/data --epochs 30 --learning-rate 0.01 --out-directory out/
+    $ docker run --rm -v $PWD:/app efficientnet --data-directory /app/data --epochs 20 --learning-rate 0.001 --out-directory out/
     ```
 
 10. This creates two .tflite files and a saved model ZIP file in the 'out' directory.
