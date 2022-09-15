@@ -19,45 +19,26 @@ np.random.seed(RANDOM_SEED)
 tf.random.set_seed(RANDOM_SEED)
 
 # Load files
-parser = argparse.ArgumentParser(description='Sync HRV Logger files to Edge Impulse')
-parser.add_argument('--x-file', type=str, required=False)
-parser.add_argument('--y-file', type=str, required=False)
+parser = argparse.ArgumentParser(description='Running custom Keras models in Edge Impulse')
+parser.add_argument('--data-directory', type=str, required=True)
 parser.add_argument('--epochs', type=int, required=True)
 parser.add_argument('--learning-rate', type=float, required=True)
-parser.add_argument('--validation-set-size', type=float, required=True)
-parser.add_argument('--input-shape', type=str, required=True)
-parser.add_argument('--out-directory', type=str, required=False)
+parser.add_argument('--out-directory', type=str, required=True)
 
-args = parser.parse_args()
+args, unknown = parser.parse_known_args()
 
-# for --x-file, --y-file, --out-directory use the defaults (used by Edge Impulse), if not passed in
-x_file = args.x_file if args.x_file else '/home/X_train_features.npy'
-y_file = args.y_file if args.y_file else '/home/y_train.npy'
-out_directory = args.out_directory if args.out_directory else '/home'
+if not os.path.exists(args.out_directory):
+    os.mkdir(args.out_directory)
 
-if not os.path.exists(x_file):
-    print('--x-file argument', x_file, 'does not exist', flush=True)
-    exit(1)
-if not os.path.exists(y_file):
-    print('--y-file argument', y_file, 'does not exist', flush=True)
-    exit(1)
-if not os.path.exists(out_directory):
-    os.mkdir(out_directory)
+# grab train/test set and convert into TF Dataset
+X_train = np.load(os.path.join(args.data_directory, 'X_split_train.npy'), mmap_mode='r')
+Y_train = np.load(os.path.join(args.data_directory, 'Y_split_train.npy'))
+X_test = np.load(os.path.join(args.data_directory, 'X_split_test.npy'), mmap_mode='r')
+Y_test = np.load(os.path.join(args.data_directory, 'Y_split_test.npy'))
 
-X = np.load(x_file)
-Y = np.load(y_file)[:,0]
+classes = Y_train.shape[1]
 
-classes = np.max(Y)
-
-# get the shape of the input, and reshape the features
-MODEL_INPUT_SHAPE = tuple([ int(x) for x in list(filter(None, args.input_shape.replace('(', '').replace(')', '').split(','))) ])
-X = X.reshape(tuple([ X.shape[0] ]) + MODEL_INPUT_SHAPE)
-
-# convert Y to a categorical vector
-Y = tf.keras.utils.to_categorical(Y - 1, classes)
-
-# split in train/validate set and convert into TF Dataset
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=args.validation_set_size, random_state=1)
+MODEL_INPUT_SHAPE = X_train.shape[1:]
 
 train_dataset = tf.data.Dataset.from_tensor_slices((X_train, Y_train))
 validation_dataset = tf.data.Dataset.from_tensor_slices((X_test, Y_test))
@@ -94,8 +75,8 @@ print('')
 disable_per_channel_quantization = False
 
 # Save the model to disk
-save_saved_model(model, out_directory)
+save_saved_model(model, args.out_directory)
 
 # Create tflite files (f32 / i8)
-convert_to_tf_lite(model, out_directory, validation_dataset, MODEL_INPUT_SHAPE,
+convert_to_tf_lite(model, args.out_directory, validation_dataset, MODEL_INPUT_SHAPE,
     'model.tflite', 'model_quantized_int8_io.tflite', disable_per_channel_quantization)
