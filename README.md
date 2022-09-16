@@ -2,7 +2,7 @@
 
 This repository is an example on how to bring EfficientNet (built using Keras) into Edge Impulse.
 
-As a primer, read the [Adding custom machine learning models](https://docs.edgeimpulse.com/docs/adding-custom-transfer-learning-models) page in the Edge Impulse docs.
+As a primer, read the [Bring your own model](https://docs.edgeimpulse.com/docs/adding-custom-transfer-learning-models) page in the Edge Impulse docs.
 
 ## Running the pipeline
 
