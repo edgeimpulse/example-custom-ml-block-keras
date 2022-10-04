@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, InputLayer, Dropout, Conv1D, Conv2D, Flatten, Reshape, MaxPooling1D, MaxPooling2D, BatchNormalization, TimeDistributed
+from tensorflow.keras.layers import Dense, InputLayer, Dropout, Conv1D, Conv2D,Flatten, Reshape, MaxPooling1D, MaxPooling2D, BatchNormalization,TimeDistributed, Rescaling
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras import Model
 from conversion import convert_to_tf_lite, save_saved_model
@@ -47,12 +47,12 @@ validation_dataset = tf.data.Dataset.from_tensor_slices((X_test, Y_test))
 # Weights file
 dir_path = os.path.dirname(os.path.realpath(__file__))
 weights_path = os.path.join(dir_path, 'transfer-learning-weights', 'keras','resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5')
-                            
+
 # place to put callbacks (e.g. to MLFlow or Weights & Biases)
 callbacks = []
 
 # model architecture
-base_model = tf.keras.applications.ResNet50(include_top=False, weights= weights_path, pooling='avg', classes=classes)
+base_model = tf.keras.applications.ResNet50(include_top=False,weights=weights_path, pooling='avg', classes=classes)
 base_model.trainable = False
 
 model = Sequential()
