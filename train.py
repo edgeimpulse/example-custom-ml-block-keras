@@ -6,6 +6,7 @@ from sklearn.model_selection import train_test_split
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, InputLayer, Dropout, Conv1D, Conv2D, Flatten, Reshape, MaxPooling1D, MaxPooling2D, BatchNormalization, TimeDistributed
 from tensorflow.keras.optimizers import Adam
+from tensorflow.keras import Model
 from conversion import convert_to_tf_lite, save_saved_model
 
 # Lower TensorFlow log levels
@@ -19,7 +20,7 @@ np.random.seed(RANDOM_SEED)
 tf.random.set_seed(RANDOM_SEED)
 
 # Load files
-parser = argparse.ArgumentParser(description='Running custom Keras models in Edge Impulse')
+parser = argparse.ArgumentParser(description='Restnet 50 models in Edge Impulse')
 parser.add_argument('--data-directory', type=str, required=True)
 parser.add_argument('--epochs', type=int, required=True)
 parser.add_argument('--learning-rate', type=float, required=True)
@@ -43,16 +44,25 @@ MODEL_INPUT_SHAPE = X_train.shape[1:]
 train_dataset = tf.data.Dataset.from_tensor_slices((X_train, Y_train))
 validation_dataset = tf.data.Dataset.from_tensor_slices((X_test, Y_test))
 
+# Weights file
+dir_path = os.path.dirname(os.path.realpath(__file__))
+weights_path = os.path.join(dir_path, 'transfer-learning-weights', 'keras','resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5')
+                            
 # place to put callbacks (e.g. to MLFlow or Weights & Biases)
 callbacks = []
 
 # model architecture
+base_model = tf.keras.applications.ResNet50(include_top=False, weights= weights_path, pooling='avg', classes=classes)
+base_model.trainable = False
+
 model = Sequential()
-model.add(Dense(20, activation='relu',
-    activity_regularizer=tf.keras.regularizers.l1(0.00001)))
-model.add(Dense(10, activation='relu',
-    activity_regularizer=tf.keras.regularizers.l1(0.00001)))
-model.add(Dense(classes, activation='softmax', name='y_pred'))
+model.add(InputLayer(input_shape=MODEL_INPUT_SHAPE, name='x_input'))
+model.add(Rescaling(scale=255))
+model.add(Model(inputs=base_model.inputs, outputs=base_model.outputs))
+model.add(Dense(16, activation='relu'))
+model.add(Dropout(0.1))
+model.add(Flatten())
+model.add(Dense(classes, activation='softmax'))
 
 # this controls the learning rate
 opt = Adam(learning_rate=args.learning_rate, beta_1=0.9, beta_2=0.999)
