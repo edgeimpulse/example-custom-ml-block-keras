@@ -57,7 +57,6 @@ base_model.trainable = False
 
 model = Sequential()
 model.add(InputLayer(input_shape=MODEL_INPUT_SHAPE, name='x_input'))
-model.add(Rescaling(scale=255))
 model.add(Model(inputs=base_model.inputs, outputs=base_model.outputs))
 model.add(Dense(16, activation='relu'))
 model.add(Dropout(0.1))
