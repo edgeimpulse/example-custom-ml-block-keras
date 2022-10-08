@@ -82,14 +82,14 @@ def convert_to_tf_lite(model, dir_path,
     print('Converting TensorFlow Lite float32 model OK')
     print('')
 
-    print('Converting TensorFlow Lite int8 model...')
-    tflite_quant_model = convert_int8_io_int8(concrete_func, model, dataset_generator,
-                                              dir_path, model_filenames_quantised_int8,
-                                              disable_per_channel)
-    print('Converting TensorFlow Lite int8 model OK')
-    print('')
+    #print('Converting TensorFlow Lite int8 model...')
+    #tflite_quant_model = convert_int8_io_int8(concrete_func, model, dataset_generator,
+    #                                          dir_path, model_filenames_quantised_int8,
+    #                                          disable_per_channel)
+    #print('Converting TensorFlow Lite int8 model OK')
+    #print('')
 
-    return model, tflite_model, tflite_quant_model
+    return model, tflite_model #, tflite_quant_model
 
 def save_saved_model(model, out_directory):
     print('Saving saved model...')
