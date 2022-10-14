@@ -13,7 +13,7 @@ You run this pipeline via Docker. This encapsulates all dependencies and package
 1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/).
 2. Install the [Edge Impulse CLI](https://docs.edgeimpulse.com/docs/edge-impulse-cli/cli-installation) v1.16.0 or higher.
 3. Create a new Edge Impulse project, and add an image dataset (see [Adding sight to your sensors](https://docs.edgeimpulse.com/docs/tutorials/image-classification)).
-4. Under **Create impulse**, set the resolution to **224x224**, then add a 'Image' processing block (make sure it's set to RGB), and a 'Transfer Learning (Images)' ML block.
+4. Under **Create impulse**, set the resolution to a square size (e.g. **224x224**), then add a 'Image' processing block (make sure it's set to RGB), and a 'Transfer Learning (Images)' ML block.
 5. Open a command prompt or terminal window.
 6. Initialize the block:
 
