@@ -12,8 +12,8 @@ You run this pipeline via Docker. This encapsulates all dependencies and package
 
 1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/).
 2. Install the [Edge Impulse CLI](https://docs.edgeimpulse.com/docs/edge-impulse-cli/cli-installation) v1.16.0 or higher.
-3. Create a new Edge Impulse project, and add data from the [continuous gestures](https://docs.edgeimpulse.com/docs/continuous-gestures) dataset.
-4. Under **Create impulse**, set the resolution to **224x224**, then add a 'Image' processing block (make sure it is set to **RGB**), and a Tansfer learning ML block.
+3. Create a new Edge Impulse project, and add images (see [Adding sight to your sensors](https://docs.edgeimpulse.com/docs/tutorials/image-classification)).
+4. Under **Create impulse**, set a square resolution (e.g. **224x224**), then add a 'Image' processing block (make sure it is set to **RGB**), and a Tansfer learning ML block.
 5. Open a command prompt or terminal window.
 6. Initialize the block:
 
@@ -68,9 +68,4 @@ You can also push this block back to Edge Impulse, that makes it available like 
     $ edge-impulse-blocks push
     ```
 
-2. The block is now available under any of your projects. Depending on the data your block operates on, you can add it via:
-    * Object Detection: **Create impulse > Add learning block > Object Detection (Images)**, then select the block via 'Choose a different model' on the 'Object detection' page.
-    * Image classification: **Create impulse > Add learning block > Transfer learning (Images)**, then select the block via 'Choose a different model' on the 'Transfer learning' page.
-    * Audio classification: **Create impulse > Add learning block > Transfer Learning (Keyword Spotting)**, then select the block via 'Choose a different model' on the 'Transfer learning' page.
-    * Other (classification): **Create impulse > Add learning block > Custom classification**, then select the block via 'Choose a different model' on the 'Machine learning' page.
-    * Other (regression): **Create impulse > Add learning block > Custom regression**, then select the block via 'Choose a different model' on the 'Regression' page.
+2. The block is now available under any of your projects via **Create impulse > Add learning block > Transfer learning (Images)**, then select the block via 'Choose a different model' on the 'Transfer learning' page.
