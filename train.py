@@ -8,6 +8,8 @@ from tensorflow.keras.layers import Dense, InputLayer, Dropout, Conv1D, Conv2D,F
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras import Model
 from conversion import convert_to_tf_lite, save_saved_model
+from tensorflow import keras
+from tensorflow.keras import layers
 
 # Lower TensorFlow log levels
 tf.get_logger().setLevel(logging.ERROR)
@@ -51,17 +53,40 @@ weights_path = os.path.join(dir_path, 'transfer-learning-weights', 'keras','resn
 # place to put callbacks (e.g. to MLFlow or Weights & Biases)
 callbacks = []
 
-# model architecture
-base_model = tf.keras.applications.ResNet50(include_top=False,weights=weights_path, pooling='avg', classes=classes)
+# Resnet50 requires data in BGR format, and specifically normalized
+# but at Edge Impulse we deal with image data in RGB format scaled 0..1
+# so here we'll do some in-graph magic to normalize
+
+# first we create a matrix for which we can subtract input data (after RGB=>BGR and scaling)
+# these values come from https://github.com/keras-team/keras/blob/506e36a6c967f62342aa49e2828b28edd2a59bc8/keras/applications/imagenet_utils.py#L218
+scale_matrix = np.ones((1,) + MODEL_INPUT_SHAPE)
+scale_matrix[:,:,0] = 103.939
+scale_matrix[:,:,1] = 116.779
+scale_matrix[:,:,2] = 123.68
+
+# base model architecture (transfer learning, no trainable layers)
+base_model = tf.keras.applications.ResNet50(include_top=False, weights=weights_path, pooling='avg', classes=classes)
 base_model.trainable = False
 
-model = Sequential()
-model.add(InputLayer(input_shape=MODEL_INPUT_SHAPE, name='x_input'))
-model.add(Model(inputs=base_model.inputs, outputs=base_model.outputs))
-model.add(Dense(16, activation='relu'))
-model.add(Dropout(0.1))
-model.add(Flatten())
-model.add(Dense(classes, activation='softmax'))
+input = keras.Input(shape=(MODEL_INPUT_SHAPE))
+x = input
+# RGB => BGR
+x = layers.Lambda(function=lambda x: x[..., -1::-1])(x)
+# 0..1 => 0..255
+x = layers.Rescaling(scale=255)(x)
+# normalize (see scale_matriux above)
+x = layers.Subtract()([ x, scale_matrix ])
+# ResNet50 (frozen layers, see above)
+x = base_model(x)
+# Dense layer
+x = layers.Dense(16, activation='relu')(x)
+# Some dropout and a flatten layer
+x = layers.Dropout(0.1)(x)
+x = layers.Flatten()(x)
+x = layers.Dense(classes, activation='softmax')(x)
+output = x
+
+model = keras.Model(inputs=input, outputs=output)
 
 # this controls the learning rate
 opt = Adam(learning_rate=args.learning_rate, beta_1=0.9, beta_2=0.999)
