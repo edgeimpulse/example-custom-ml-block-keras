@@ -72,5 +72,5 @@ You can also push this block back to Edge Impulse, that makes it available like 
     * Object Detection: **Create impulse > Add learning block > Object Detection (Images)**, then select the block via 'Choose a different model' on the 'Object detection' page.
     * Image classification: **Create impulse > Add learning block > Transfer learning (Images)**, then select the block via 'Choose a different model' on the 'Transfer learning' page.
     * Audio classification: **Create impulse > Add learning block > Transfer Learning (Keyword Spotting)**, then select the block via 'Choose a different model' on the 'Transfer learning' page.
-    * Other (classification): **Create impulse > Add learning block > Custom classification**, then select the block via 'Choose a different model' on the 'Machine learning' page.
-    * Other (regression): **Create impulse > Add learning block > Custom regression**, then select the block via 'Choose a different model' on the 'Regression' page.
+    * Classification: **Create impulse > Add learning block > Classification**, then select the block via 'Add an extra layer' on the 'Classifier' page.
+    * Regression: **Create impulse > Add learning block > Regression**, then select the block via 'Add an extra layer' on the 'Regression' page.
