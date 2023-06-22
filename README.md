@@ -46,6 +46,10 @@ You run this pipeline via Docker. This encapsulates all dependencies and package
 
 If you have extra packages that you want to install within the container, add them to `requirements.txt` and rebuild the container.
 
+#### Adding new arguments
+
+To add new arguments, see [Custom learning blocks > Arguments to your script](https://docs.edgeimpulse.com/docs/edge-impulse-studio/learning-blocks/adding-custom-learning-blocks#arguments-to-your-script).
+
 ## Fetching new data
 
 To get up-to-date data from your project:
@@ -68,9 +72,4 @@ You can also push this block back to Edge Impulse, that makes it available like 
     $ edge-impulse-blocks push
     ```
 
-2. The block is now available under any of your projects. Depending on the data your block operates on, you can add it via:
-    * Object Detection: **Create impulse > Add learning block > Object Detection (Images)**, then select the block via 'Choose a different model' on the 'Object detection' page.
-    * Image classification: **Create impulse > Add learning block > Transfer learning (Images)**, then select the block via 'Choose a different model' on the 'Transfer learning' page.
-    * Audio classification: **Create impulse > Add learning block > Transfer Learning (Keyword Spotting)**, then select the block via 'Choose a different model' on the 'Transfer learning' page.
-    * Classification: **Create impulse > Add learning block > Classification**, then select the block via 'Add an extra layer' on the 'Classifier' page.
-    * Regression: **Create impulse > Add learning block > Regression**, then select the block via 'Add an extra layer' on the 'Regression' page.
+2. The block is now available under any of your projects via **Create impulse > Add new learning block**.

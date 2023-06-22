@@ -1,0 +1,13 @@
+[{
+    "name": "Number of training cycles",
+    "value": "30",
+    "type": "int",
+    "help": "Number of epochs to train the neural network on.",
+    "param": "epochs"
+}, {
+    "name": "Learning rate",
+    "value": "0.001",
+    "type": "float",
+    "help": "How fast the neural network learns, if the network overfits quickly, then lower the learning rate.",
+    "param": "learning-rate"
+}]
