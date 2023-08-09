@@ -1,7 +1,6 @@
 import io, os, shutil
 import tensorflow as tf
 import numpy as np
-import tflite
 
 def get_concrete_function(keras_model, input_shape):
     # To produce an optimized model, the converter needs to see a static batch dimension.
