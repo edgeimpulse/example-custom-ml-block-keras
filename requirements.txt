@@ -1,5 +1,5 @@
-keras==2.7.0
-numpy==1.22.2
-scikit-learn==1.0.2
-tflite==2.4.0
-protobuf==3.20.*
+keras==2.11.0
+numpy
+scikit-learn
+tensorflow==2.11.0
+protobuf==3.19.*
