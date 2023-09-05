@@ -1,22 +1,26 @@
-import sklearn # do this first, otherwise get a libgomp error?!
-import argparse, os, sys, random, logging
+import math, random
 import numpy as np
+import argparse, os, sys,logging
 import tensorflow as tf
-from sklearn.model_selection import train_test_split
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, InputLayer, Dropout, Conv1D, Conv2D, Flatten, Reshape, MaxPooling1D, MaxPooling2D, BatchNormalization, TimeDistributed
-from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.layers import Activation, Dropout, Flatten, Reshape
+from tensorflow.keras.optimizers.legacy import Adam
+
+from keras import Model
+from keras.layers import Activation, Dropout, Reshape, Flatten
+
 from conversion import convert_to_tf_lite, save_saved_model
 
-# Lower TensorFlow log levels
-tf.get_logger().setLevel(logging.ERROR)
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+from akida_models.layer_blocks import dense_block
+from akida_models import akidanet_imagenet
 
-# Set random seeds for repeatable results
-RANDOM_SEED = 3
-random.seed(RANDOM_SEED)
-np.random.seed(RANDOM_SEED)
-tf.random.set_seed(RANDOM_SEED)
+import cnn2snn
+
+from brainchip.model import convert_akida_model
+from brainchip.quantize import *
+from brainchip.transfer import train
+
+#WEIGHTS_PREFIX = os.environ.get('WEIGHTS_PREFIX', os.getcwd())
+WEIGHTS_PREFIX = '/app'
 
 # Load files
 parser = argparse.ArgumentParser(description='Running custom Keras models in Edge Impulse')
@@ -36,34 +40,45 @@ Y_train = np.load(os.path.join(args.data_directory, 'Y_split_train.npy'))
 X_test = np.load(os.path.join(args.data_directory, 'X_split_test.npy'), mmap_mode='r')
 Y_test = np.load(os.path.join(args.data_directory, 'Y_split_test.npy'))
 
-classes = Y_train.shape[1]
-
 MODEL_INPUT_SHAPE = X_train.shape[1:]
 
 train_dataset = tf.data.Dataset.from_tensor_slices((X_train, Y_train))
 validation_dataset = tf.data.Dataset.from_tensor_slices((X_test, Y_test))
 
-# place to put callbacks (e.g. to MLFlow or Weights & Biases)
+classes = Y_train.shape[1]
+EPOCHS = args.epochs or 20
+LEARNING_RATE = args.learning_rate or 0.0005
+
 callbacks = []
 
-# model architecture
-model = Sequential()
-model.add(Dense(20, activation='relu',
-    activity_regularizer=tf.keras.regularizers.l1(0.00001)))
-model.add(Dense(10, activation='relu',
-    activity_regularizer=tf.keras.regularizers.l1(0.00001)))
-model.add(Dense(classes, activation='softmax', name='y_pred'))
+BEST_MODEL_PATH = os.path.join(os.sep, 'tmp', 'best_model.hdf5')
 
-# this controls the learning rate
-opt = Adam(learning_rate=args.learning_rate, beta_1=0.9, beta_2=0.999)
-# this controls the batch size, or you can manipulate the tf.data.Dataset objects yourself
-BATCH_SIZE = 32
-train_dataset_batch = train_dataset.batch(BATCH_SIZE, drop_remainder=False)
-validation_dataset_batch = validation_dataset.batch(BATCH_SIZE, drop_remainder=False)
-
-# train the neural network
-model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
-model.fit(train_dataset_batch, epochs=args.epochs, validation_data=validation_dataset_batch, verbose=2, callbacks=callbacks)
+# Available pretrained_weights are:
+# akidanet_imagenet_224_alpha_100.h5            - float32 model, 224x224x3, alpha=1.00
+# akidanet_imagenet_224_alpha_50.h5             - float32 model, 224x224x3, alpha=0.50
+# akidanet_imagenet_224_alpha_25.h5             - float32 model, 224x224x3, alpha=0.25
+# akidanet_imagenet_160_alpha_100.h5            - float32 model, 160x160x3, alpha=1.00
+# akidanet_imagenet_160_alpha_50.h5             - float32 model, 160x160x3, alpha=0.50
+# akidanet_imagenet_160_alpha_25.h5             - float32 model, 160x160x3, alpha=0.25
+model, akida_model, akida_edge_model = train(train_dataset=train_dataset,
+                                             validation_dataset=validation_dataset,
+                                             num_classes=classes,
+                                             pretrained_weights=os.path.join(WEIGHTS_PREFIX , 'transfer-learning-weights/akidanet/akidanet_imagenet_160_alpha_50.h5'),
+                                             input_shape=MODEL_INPUT_SHAPE,
+                                             learning_rate=LEARNING_RATE,
+                                             epochs=EPOCHS,
+                                             dense_layer_neurons=16,
+                                             dropout=0.1,
+                                             data_augmentation=False,
+                                             callbacks=callbacks,
+                                             alpha=0.5,
+                                             best_model_path=BEST_MODEL_PATH,
+                                             quantize_function=akida_quantize_model,
+                                             qat_function=akida_perform_qat,
+                                             edge_learning_function=None,
+                                             additional_classes=None,
+                                             neurons_per_class=None,
+                                             X_train=X_train)
 
 print('')
 print('Training network OK')
@@ -80,3 +95,9 @@ save_saved_model(model, args.out_directory)
 # Create tflite files (f32 / i8)
 convert_to_tf_lite(model, args.out_directory, validation_dataset, MODEL_INPUT_SHAPE,
     'model.tflite', 'model_quantized_int8_io.tflite', disable_per_channel_quantization)
+
+convert_akida_model(args.out_directory, akida_model,
+                    'akida_model.fbz',
+                    MODEL_INPUT_SHAPE)
+
+print(os.listdir(args.out_directory))

@@ -1,0 +1,8 @@
+akidanet_imagenet_224_alpha_50_iq8_wq4_aq4.h5
+akidanet_imagenet_224_alpha_50.h5
+akidanet_imagenet_224_alpha_25.h5
+akidanet_imagenet_224_alpha_100.h5
+akidanet_imagenet_160_alpha_50_iq8_wq4_aq4.h5
+akidanet_imagenet_160_alpha_50.h5
+akidanet_imagenet_160_alpha_25.h5
+akidanet_imagenet_160_alpha_100.h5

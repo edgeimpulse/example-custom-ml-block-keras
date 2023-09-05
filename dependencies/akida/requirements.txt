@@ -1,0 +1,6 @@
+akida-models==1.1.3
+quantizeml==0.4.2
+tensorflow==2.11.1
+keras==2.11.0
+akida==2.3.3
+/app/cnn2snn-2.3.3/

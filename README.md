@@ -37,10 +37,10 @@ You run this pipeline via Docker. This encapsulates all dependencies and package
 9. Run the container to test the script (you don't need to rebuild the container if you make changes):
 
     ```
-    $ docker run --rm -v $PWD:/app custom-ml-keras --data-directory /app/data --epochs 30 --learning-rate 0.01 --out-directory out/
+    $ docker run --rm -v $PWD:/scripts custom-ml-keras --data-directory data --epochs 30 --learning-rate 0.01 --out-directory out/
     ```
 
-10. This creates two .tflite files and a saved model ZIP file in the 'out' directory.
+10. This creates two .tflite files, a saved model ZIP file and a Akida model (`.fbz`) in the 'out' directory.
 
 #### Adding extra dependencies
 
