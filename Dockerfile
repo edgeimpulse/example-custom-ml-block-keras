@@ -26,12 +26,8 @@ RUN apt update && apt install -y curl zip git lsb-release software-properties-co
 RUN python3 -m pip install --upgrade pip==20.3.4
 
 COPY dependencies/akida ./akida
-#RUN cd akida && ./download_akida.sh
+RUN cd akida && ./download_akida.sh
 RUN pip3 install --no-cache-dir -r akida/requirements.txt
-
-# Patch cnn2snn library for Keras 2.11 compat
-#RUN cd akida && /bin/bash ./patch-cnn2snn.sh && \
-#    rm patch-cnn2snn.sh
 
 # Copy Python requirements in and install them
 COPY requirements.txt ./
