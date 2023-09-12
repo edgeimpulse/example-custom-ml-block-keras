@@ -3,7 +3,7 @@ import tensorflow as tf
 import numpy as np
 from akida_models import akidanet_imagenet
 from keras import Model
-from tensorflow.keras.optimizers.legacy import Adam
+from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.layers import BatchNormalization, Conv2D, Softmax, ReLU
 from cnn2snn import check_model_compatibility
 from ei_tensorflow.constrained_object_detection import models, dataset, metrics, util

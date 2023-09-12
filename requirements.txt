@@ -1,5 +1,5 @@
-keras==2.11.0
+#keras==2.11.0
 numpy
 scikit-learn
-tensorflow==2.11.0
+#tensorflow==2.11.0
 protobuf==3.19.*

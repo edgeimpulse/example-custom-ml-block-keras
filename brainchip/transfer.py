@@ -1,7 +1,7 @@
 import math, random
 import tensorflow as tf
 from tensorflow.keras.layers import Activation, Dropout, Flatten, Reshape
-from tensorflow.keras.optimizers.legacy import Adam
+from tensorflow.keras.optimizers import Adam
 
 from keras import Model
 from keras.layers import Activation, Dropout, Reshape, Flatten
