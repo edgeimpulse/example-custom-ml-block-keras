@@ -27,6 +27,8 @@ parser = argparse.ArgumentParser(description='Running custom Keras models in Edg
 parser.add_argument('--data-directory', type=str, required=True)
 parser.add_argument('--epochs', type=int, required=True)
 parser.add_argument('--learning-rate', type=float, required=True)
+parser.add_argument('--qat-epochs', type=int, required=True)
+parser.add_argument('--qat-learning-rate', type=float, required=True)
 parser.add_argument('--out-directory', type=str, required=True)
 
 args, unknown = parser.parse_known_args()
@@ -47,7 +49,9 @@ validation_dataset = tf.data.Dataset.from_tensor_slices((X_test, Y_test))
 
 classes = Y_train.shape[1]
 EPOCHS = args.epochs or 20
-LEARNING_RATE = args.learning_rate or 0.0005
+LEARNING_RATE = args.learning_rate or 0.00005
+QAT_EPOCHS = args.qat_epochs or 30
+QAT_LEARNING_RATE = args.qat_learning_rate or 0.00005
 
 callbacks = []
 
@@ -75,6 +79,8 @@ model, akida_model, akida_edge_model = train(train_dataset=train_dataset,
                                              best_model_path=BEST_MODEL_PATH,
                                              quantize_function=akida_quantize_model,
                                              qat_function=akida_perform_qat,
+                                             qat_learning_rate=QAT_LEARNING_RATE,
+                                             qat_epochs=QAT_EPOCHS,
                                              edge_learning_function=None,
                                              additional_classes=None,
                                              neurons_per_class=None,

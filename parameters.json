@@ -1,13 +1,26 @@
 [{
     "name": "Number of training cycles",
-    "value": "30",
+    "value": "20",
     "type": "int",
     "help": "Number of epochs to train the neural network on.",
     "param": "epochs"
 }, {
     "name": "Learning rate",
-    "value": "0.001",
+    "value": "0.00005",
     "type": "float",
     "help": "How fast the neural network learns, if the network overfits quickly, then lower the learning rate.",
     "param": "learning-rate"
-}]
+}, {
+    "name": "QAT number of training cycles",
+    "type": "int",
+    "value": "30",
+    "help": "Number of epochs to train the neural network on during QAT step.",
+    "param": "qat-epochs"
+}, {
+    "name": "QAT learning rate",
+    "value": "0.00005",
+    "type": "float",
+    "help": "How fast the neural network learns during QAT step, if the network overfits quickly, then lower the learning rate.",
+    "param": "qat-learning-rate"
+}
+]

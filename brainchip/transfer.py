@@ -49,6 +49,8 @@ def train(train_dataset: tf.data.Dataset,
           best_model_path: str,
           quantize_function,
           qat_function,
+          qat_learning_rate = 0.00005,
+          qat_epochs = 30,
           edge_learning_function=None,
           additional_classes=None,
           neurons_per_class=None,
@@ -110,10 +112,12 @@ def train(train_dataset: tf.data.Dataset,
     akida_model = quantize_function(keras_model=model)
 
     #! Do a quantization-aware training
+    qat_opt = Adam(learning_rate=qat_learning_rate)
     akida_model = qat_function(akida_model=akida_model,
                                train_dataset=train_dataset,
                                validation_dataset=validation_dataset,
-                               optimizer=opt,
+                               optimizer=qat_opt,
+                               qat_epochs=qat_epochs,
                                fine_tune_loss='categorical_crossentropy',
                                fine_tune_metrics=['accuracy'],
                                callbacks=callbacks)
