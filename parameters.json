@@ -6,7 +6,7 @@
     "param": "epochs"
 }, {
     "name": "Learning rate",
-    "value": "0.00005",
+    "value": "0.0005",
     "type": "float",
     "help": "How fast the neural network learns, if the network overfits quickly, then lower the learning rate.",
     "param": "learning-rate"
@@ -18,7 +18,7 @@
     "param": "qat-epochs"
 }, {
     "name": "QAT learning rate",
-    "value": "0.00005",
+    "value": "0.0005",
     "type": "float",
     "help": "How fast the neural network learns during QAT step, if the network overfits quickly, then lower the learning rate.",
     "param": "qat-learning-rate"
