@@ -43,6 +43,10 @@ MODEL_INPUT_SHAPE = X_train.shape[1:]
 train_dataset = tf.data.Dataset.from_tensor_slices((X_train, Y_train))
 validation_dataset = tf.data.Dataset.from_tensor_slices((X_test, Y_test))
 
+# print GPU/CPU info
+print('Training on:', 'gpu' if len(tf.config.list_physical_devices('GPU')) > 0 else 'cpu')
+print('')
+
 # Weights file
 dir_path = os.path.dirname(os.path.realpath(__file__))
 weights_path = os.path.join(dir_path, 'transfer-learning-weights', 'keras', 'efficientnetb0_notop.h5')

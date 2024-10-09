@@ -19,7 +19,6 @@ You run this pipeline via Docker. This encapsulates all dependencies and package
 
     ```
     $ edge-impulse-blocks init
-    # Answer the questions, select "Image classification" for 'What type of data does this model operate on?'
     ```
 
 7. Fetch new data via:
@@ -46,6 +45,10 @@ You run this pipeline via Docker. This encapsulates all dependencies and package
 
 If you have extra packages that you want to install within the container, add them to `requirements.txt` and rebuild the container.
 
+#### Adding new arguments
+
+To add new arguments, see [Custom learning blocks > Arguments to your script](https://docs.edgeimpulse.com/docs/edge-impulse-studio/learning-blocks/adding-custom-learning-blocks#arguments-to-your-script).
+
 ## Fetching new data
 
 To get up-to-date data from your project:
@@ -68,5 +71,15 @@ You can also push this block back to Edge Impulse, that makes it available like 
     $ edge-impulse-blocks push
     ```
 
-2. The block is now available under any of your projects via **Create impulse > Add learning block > Transfer learning (Images)**, then select the block via 'Choose a different model' on the 'Transfer learning' page.
+2. The block is now available under any of your projects via **Create impulse > Add learning block**, then select the block via 'Choose a different model' on the 'Transfer learning' page.
 
+## Changing the block type (e.g. image classification, object detection or regression)
+
+If you want to change the block type because you're classifying a different data type, or build a model with a different output format, run:
+
+```
+$ rm parameters.json  .ei-block-config
+$ edge-impulse-blocks init
+```
+
+And answer the wizard. This'll create a new parameters.json file.
