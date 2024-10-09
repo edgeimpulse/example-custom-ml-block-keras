@@ -18,8 +18,7 @@ You run this pipeline via Docker. This encapsulates all dependencies and package
 6. Initialize the block:
 
     ```
-    $ edge-impulse-blocks init
-    # Answer the questions, select "other" for 'What type of data does this model operate on?'
+    $ edge-impulse-blocks init --clean
     ```
 
 7. Fetch new data via:
@@ -73,3 +72,14 @@ You can also push this block back to Edge Impulse, that makes it available like 
     ```
 
 2. The block is now available under any of your projects via **Create impulse > Add new learning block**.
+
+## Changing the block type (e.g. image classification, object detection or regression)
+
+If you want to change the block type because you're classifying a different data type, or build a model with a different output format, run:
+
+```
+$ rm parameters.json  .ei-block-config
+$ edge-impulse-blocks init
+```
+
+And answer the wizard. This'll create a new parameters.json file.

@@ -2,9 +2,8 @@ import sklearn # do this first, otherwise get a libgomp error?!
 import argparse, os, sys, random, logging
 import numpy as np
 import tensorflow as tf
-from sklearn.model_selection import train_test_split
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, InputLayer, Dropout, Conv1D, Conv2D, Flatten, Reshape, MaxPooling1D, MaxPooling2D, BatchNormalization, TimeDistributed
+from tensorflow.keras.layers import Dense
 from tensorflow.keras.optimizers import Adam
 from conversion import convert_to_tf_lite, save_saved_model
 
@@ -42,6 +41,10 @@ MODEL_INPUT_SHAPE = X_train.shape[1:]
 
 train_dataset = tf.data.Dataset.from_tensor_slices((X_train, Y_train))
 validation_dataset = tf.data.Dataset.from_tensor_slices((X_test, Y_test))
+
+# print GPU/CPU info
+print('Training on:', 'gpu' if len(tf.config.list_physical_devices('GPU')) > 0 else 'cpu')
+print('')
 
 # place to put callbacks (e.g. to MLFlow or Weights & Biases)
 callbacks = []

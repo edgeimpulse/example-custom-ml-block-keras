@@ -21,13 +21,19 @@ COPY dependencies/install_cuda.sh ./install_cuda.sh
 RUN ./install_cuda.sh && \
     rm install_cuda.sh
 
-# Install base packages (like Python and pip)
-RUN apt update && apt install -y curl zip git lsb-release software-properties-common apt-transport-https vim wget python3 python3-pip
-RUN python3 -m pip install --upgrade pip==20.3.4
+# Install base packages
+RUN apt update && apt install -y curl zip git lsb-release software-properties-common apt-transport-https vim wget
+
+# Install Python 3.10
+RUN add-apt-repository ppa:deadsnakes/ppa && \
+    apt update && \
+    apt install -y python3.10 python3.10-distutils
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10 && \
+    python3.10 -m pip install --upgrade pip==20.3.4
 
 # Copy Python requirements in and install them
 COPY requirements.txt ./
-RUN pip3 install -r requirements.txt
+RUN pip3.10 install -r requirements.txt
 
 # https://stackoverflow.com/questions/43147983/could-not-create-cudnn-handle-cudnn-status-internal-error
 ENV TF_FORCE_GPU_ALLOW_GROWTH=true
@@ -36,4 +42,4 @@ ENV TF_FORCE_GPU_ALLOW_GROWTH=true
 COPY . ./
 
 # And tell us where to run the pipeline
-ENTRYPOINT ["python3", "-u", "train.py"]
+ENTRYPOINT ["python3.10", "-u", "train.py"]
