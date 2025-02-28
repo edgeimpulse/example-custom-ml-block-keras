@@ -35,11 +35,25 @@ You run this pipeline via Docker. This encapsulates all dependencies and package
 
 9. Run the container to test the script (you don't need to rebuild the container if you make changes):
 
+    **macOS, Linux**
+
     ```
     $ docker run --rm -v $PWD:/app custom-ml-keras --data-directory /app/data --epochs 30 --learning-rate 0.01 --out-directory out/
     ```
 
-10. This creates two .tflite files and a saved model ZIP file in the 'out' directory.
+    **Windows (Command prompt)**
+
+    ```
+    $ docker run --rm -v "%cd%":/app custom-ml-keras --data-directory /app/data --epochs 30 --learning-rate 0.01 --out-directory out/
+    ```
+
+    **Windows (Powershell)**
+
+    ```
+    $ docker run --rm -v ${PWD}$:/app custom-ml-keras --data-directory /app/data --epochs 30 --learning-rate 0.01 --out-directory out/
+    ```
+
+10. This creates a saved model ZIP file in the 'out' directory.
 
 #### Adding extra dependencies
 

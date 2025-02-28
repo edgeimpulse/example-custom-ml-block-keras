@@ -1,11 +1,10 @@
-import sklearn # do this first, otherwise get a libgomp error?!
 import argparse, os, sys, random, logging
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.optimizers import Adam
-from conversion import convert_to_tf_lite, save_saved_model
+from conversion import save_saved_model
 
 # Lower TensorFlow log levels
 tf.get_logger().setLevel(logging.ERROR)
@@ -72,14 +71,5 @@ print('')
 print('Training network OK')
 print('')
 
-# Use this flag to disable per-channel quantization for a model.
-# This can reduce RAM usage for convolutional models, but may have
-# an impact on accuracy.
-disable_per_channel_quantization = False
-
 # Save the model to disk
 save_saved_model(model, args.out_directory)
-
-# Create tflite files (f32 / i8)
-convert_to_tf_lite(model, args.out_directory, validation_dataset, MODEL_INPUT_SHAPE,
-    'model.tflite', 'model_quantized_int8_io.tflite', disable_per_channel_quantization)
