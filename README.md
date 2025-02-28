@@ -1,6 +1,6 @@
 # Custom Keras ML block example for Edge Impulse
 
-This repository is an example on how to [add a custom learning block](https://docs.edgeimpulse.com/docs/edge-impulse-studio/learning-blocks/adding-custom-learning-blocks) to Edge Impulse. This repository contains a small fully-connected model built in Keras & TensorFlow. If you want to see a more complex example, see [efficientnet](https://github.com/edgeimpulse/example-custom-ml-block-keras/tree/efficientnet). Or if you're looking for the PyTorch version of this repository, see [edgeimpulse/example-custom-ml-block-pytorch](https://github.com/edgeimpulse/example-custom-ml-block-pytorch).
+This repository is an example on how to [add a custom learning block](https://docs.edgeimpulse.com/docs/edge-impulse-studio/learning-blocks/adding-custom-learning-blocks) to Edge Impulse. This repository contains a small fully-connected model built in Keras & TensorFlow. If you want to see a more complex example, see [edgeimpulse/efficientnet](https://github.com/edgeimpulse/example-custom-ml-block-efficientnet). Or if you're looking for the PyTorch version of this repository, see [edgeimpulse/example-custom-ml-block-pytorch](https://github.com/edgeimpulse/example-custom-ml-block-pytorch).
 
 As a primer, read the [Custom learning blocks](https://docs.edgeimpulse.com/docs/edge-impulse-studio/learning-blocks/adding-custom-learning-blocks) page in the Edge Impulse docs.
 
