@@ -1,0 +1,5 @@
+*.sh text eol=crlf
+*.py text eol=crlf
+*.json text eol=crlf
+*.md text eol=crlf
+*.txt text eol=crlf
