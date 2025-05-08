@@ -18,7 +18,7 @@ WORKDIR /app
 # CUDA drivers
 SHELL ["/bin/bash", "-c"]
 COPY dependencies/install_cuda.sh ./install_cuda.sh
-RUN ./install_cuda.sh && \
+RUN /bin/bash ./install_cuda.sh && \
     rm install_cuda.sh
 
 # Install base packages
