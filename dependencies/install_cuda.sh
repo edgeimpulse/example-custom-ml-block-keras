@@ -22,7 +22,7 @@ else
         libcusolver-${CUDA/./-} \
         libcusparse-${CUDA/./-} \
         curl \
-        libcudnn8=${CUDNN}+cuda${CUDA} \
+        libcudnn${CUDNN_MAJOR_VERSION}-cuda-12 \
         libfreetype6-dev \
         libhdf5-serial-dev \
         libzmq3-dev \
@@ -31,12 +31,8 @@ else
         unzip
 
     [[ "${ARCH}" = "ppc64le" ]] || { apt-get update && \
-        apt-get install -y --no-install-recommends libnvinfer${LIBNVINFER_MAJOR_VERSION}=${LIBNVINFER}+cuda11.0 \
-        libnvinfer-plugin${LIBNVINFER_MAJOR_VERSION}=${LIBNVINFER}+cuda11.0 \
+        apt-get install -y --no-install-recommends libnvinfer${LIBNVINFER_MAJOR_VERSION} \
+        libnvinfer-plugin${LIBNVINFER_MAJOR_VERSION} \
         && apt-get clean \
         && rm -rf /var/lib/apt/lists/*; }
-
-    ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1 \
-        && echo "/usr/local/cuda/lib64/stubs" > /etc/ld.so.conf.d/z-cuda-stubs.conf \
-        && ldconfig
 fi
