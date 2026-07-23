@@ -12,11 +12,12 @@ Upgrade this repository from Ubuntu 20.04 / CUDA 11.2 / TensorFlow 2.11 to an Ub
 
 2. Choose and test the upgraded NVIDIA-owned `nvidia/cuda` Ubuntu 24.04 base tag.
    - Keep the Dockerfile pattern that starts from `nvidia/cuda${ARCH:+-$ARCH}:...-ubuntu...`.
-   - Use NVIDIA's CUDA/cuDNN devel flavor so CUDA, cuDNN, `ptxas`, `libdevice`, and `libnvJitLink` come from NVIDIA's base image.
+   - Use NVIDIA's smaller CUDA/cuDNN runtime flavor and install only the CUDA package that proved necessary for TensorFlow GPU JIT compilation.
+   - Install `cuda-nvvm-12-9` for `libdevice.10.bc`; leave out `cuda-nvcc-12-9`/`ptxas` to reduce image size, accepting TensorFlow's driver-compiler fallback warnings.
    - Do not switch to a TensorFlow-provided image, generic Python image, or any other non-`nvidia/cuda` base image.
 
 3. Remove the custom CUDA dependency installation path.
-   - Skip `dependencies/install_cuda.sh` because the NVIDIA `cudnn-devel` image already includes the required CUDA/cuDNN runtime and toolkit files.
+   - Skip `dependencies/install_cuda.sh` because the official NVIDIA `cudnn-runtime` image plus `cuda-nvvm-12-9` supplies the required CUDA/cuDNN runtime and `libdevice` file.
    - Preserve the Docker flow after the base image: minimal Python/pip install, requirements, app copy, and training entrypoint.
 
 4. Update Python dependencies for TensorFlow 2.21.

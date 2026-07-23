@@ -3,17 +3,22 @@ ARG UBUNTU_VERSION=24.04
 
 ARG ARCH=
 ARG CUDA=12.9.1
-ARG CUDA_FLAVOR=cudnn-devel
+ARG CUDA_PACKAGE_VERSION=12-9
+ARG CUDA_FLAVOR=cudnn-runtime
 FROM nvidia/cuda${ARCH:+-$ARCH}:${CUDA}-${CUDA_FLAVOR}-ubuntu${UBUNTU_VERSION} as base
 ARG CUDA
+ARG CUDA_PACKAGE_VERSION
 # Let us install tzdata painlessly
 ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /app
 
-# Install Python 3 and pip
+# Install Python 3, pip, and libdevice for TensorFlow GPU JIT compilation.
+# cuda-nvcc would add ptxas and remove fallback warnings, but costs extra image size.
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    apt-get update && apt-get install -y --no-install-recommends python3 python3-pip && \
+    apt-get update && apt-get install -y --no-install-recommends \
+        python3 python3-pip \
+        cuda-nvvm-${CUDA_PACKAGE_VERSION} && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy Python requirements in and install them (--break-system-packages is required if we don't use a venv)
