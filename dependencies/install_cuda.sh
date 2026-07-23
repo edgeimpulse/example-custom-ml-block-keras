@@ -1,28 +1,27 @@
- #!/bin/bash
+#!/bin/bash
 set -ex
 
-UNAME=`uname -m`
+UNAME=$(uname -m)
 
 if [ "$UNAME" == "aarch64" ]; then
     echo "Skipping CUDA on AARCH64..."
 else
-    # Update the CUDA Linux GPG Repository Key
-    # See: https://developer.nvidia.com/blog/updating-the-cuda-linux-gpg-repository-key/
-    apt-key del 7fa2af80
-    apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
-    apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub
+    CUDA_PKG_VERSION=${CUDA_PKG_VERSION:?CUDA_PKG_VERSION is required}
+    CUDNN_PACKAGE=${CUDNN_PACKAGE:?CUDNN_PACKAGE is required}
 
     apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
-        cuda-command-line-tools-${CUDA/./-} \
-        libcublas-${CUDA/./-} \
-        cuda-nvrtc-${CUDA/./-} \
-        libcufft-${CUDA/./-} \
-        libcurand-${CUDA/./-} \
-        libcusolver-${CUDA/./-} \
-        libcusparse-${CUDA/./-} \
+        cuda-command-line-tools-${CUDA_PKG_VERSION} \
+        cuda-nvcc-${CUDA_PKG_VERSION} \
+        libcublas-${CUDA_PKG_VERSION} \
+        cuda-nvrtc-${CUDA_PKG_VERSION} \
+        libcufft-${CUDA_PKG_VERSION} \
+        libcurand-${CUDA_PKG_VERSION} \
+        libcusolver-${CUDA_PKG_VERSION} \
+        libcusparse-${CUDA_PKG_VERSION} \
+        libnvjitlink-${CUDA_PKG_VERSION} \
         curl \
-        libcudnn8=${CUDNN}+cuda${CUDA} \
+        ${CUDNN_PACKAGE} \
         libfreetype6-dev \
         libhdf5-serial-dev \
         libzmq3-dev \
@@ -30,13 +29,12 @@ else
         software-properties-common \
         unzip
 
-    [[ "${ARCH}" = "ppc64le" ]] || { apt-get update && \
-        apt-get install -y --no-install-recommends libnvinfer${LIBNVINFER_MAJOR_VERSION}=${LIBNVINFER}+cuda11.0 \
-        libnvinfer-plugin${LIBNVINFER_MAJOR_VERSION}=${LIBNVINFER}+cuda11.0 \
-        && apt-get clean \
-        && rm -rf /var/lib/apt/lists/*; }
+    apt-get clean \
+        && rm -rf /var/lib/apt/lists/*
 
-    ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1 \
-        && echo "/usr/local/cuda/lib64/stubs" > /etc/ld.so.conf.d/z-cuda-stubs.conf \
-        && ldconfig
+    if [ -f /usr/local/cuda/lib64/stubs/libcuda.so ]; then
+        ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1 \
+            && echo "/usr/local/cuda/lib64/stubs" > /etc/ld.so.conf.d/z-cuda-stubs.conf \
+            && ldconfig
+    fi
 fi

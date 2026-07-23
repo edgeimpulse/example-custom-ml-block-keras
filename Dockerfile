@@ -1,15 +1,12 @@
 # syntax = docker/dockerfile:experimental@sha256:3c244c0c6fc9d6aa3ddb73af4264b3a23597523ac553294218c13735a2c6cf79
-ARG UBUNTU_VERSION=20.04
+ARG UBUNTU_VERSION=24.04
 
 ARG ARCH=
-ARG CUDA=11.2
-FROM nvidia/cuda${ARCH:+-$ARCH}:${CUDA}.2-base-ubuntu${UBUNTU_VERSION} as base
+ARG CUDA=12.9.1
+FROM nvidia/cuda${ARCH:+-$ARCH}:${CUDA}-base-ubuntu${UBUNTU_VERSION} as base
 ARG CUDA
-ARG CUDNN=8.1.0.77-1
-ARG CUDNN_MAJOR_VERSION=8
-ARG LIB_DIR_PREFIX=x86_64
-ARG LIBNVINFER=8.0.0-1
-ARG LIBNVINFER_MAJOR_VERSION=8
+ARG CUDA_PKG_VERSION=12-9
+ARG CUDNN_PACKAGE=cudnn9-cuda-12-9
 # Let us install tzdata painlessly
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -36,17 +33,13 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 
 # Install Python 3
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    apt update && apt install -y python3 python3-pip python3-distutils && \
+    apt update && apt install -y python3 python3-pip python3-setuptools && \
     rm -r /var/lib/apt/lists/
-
-# Pin pip / setuptools
-RUN --mount=type=cache,target=/root/.cache/pip \
-    python3 -m pip install "pip==21.3.1" "setuptools==62.6.0"
 
 # Copy Python requirements in and install them
 COPY requirements.txt ./
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip3 install -r requirements.txt
+    python3 -m pip install --break-system-packages -r requirements.txt
 
 # https://stackoverflow.com/questions/43147983/could-not-create-cudnn-handle-cudnn-status-internal-error
 ENV TF_FORCE_GPU_ALLOW_GROWTH=true

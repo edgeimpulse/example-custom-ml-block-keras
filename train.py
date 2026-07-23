@@ -64,7 +64,7 @@ train_dataset_batch = train_dataset.batch(BATCH_SIZE, drop_remainder=False)
 validation_dataset_batch = validation_dataset.batch(BATCH_SIZE, drop_remainder=False)
 
 # train the neural network
-model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
+model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'], jit_compile=False)
 model.fit(train_dataset_batch, epochs=args.epochs, validation_data=validation_dataset_batch, verbose=2, callbacks=callbacks)
 
 print('')
