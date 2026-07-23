@@ -27,7 +27,7 @@ Keep iterating over the cuda dependencies / TensorFlow version / Ubuntu packages
 
 ## Your goal
 
-* Upgrade this repository to Ubuntu 24.04, and TensorFlow 2.21 - running in Docker.
+* Upgrade this repository to Ubuntu 24.04, and TensorFlow 2.19 - running in Docker.
 * Keep the code in `train.py` as much as possible the same.
 * Do not create files in temp directories outside this folder, because it keeps prompting me.
 * Exact Docker base image / cuda / cuDNN / Ubuntu / TF are _VERY_ finicky to get right. So keep running stuff to make sure you have the right combo. Make temp Dockerfile's (in this repo) to test out stuff if you need to.

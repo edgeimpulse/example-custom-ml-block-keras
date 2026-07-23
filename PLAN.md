@@ -1,6 +1,6 @@
 # Plan: Upgrade Docker GPU Stack
 
-Upgrade this repository from Ubuntu 20.04 / CUDA 11.2 / TensorFlow 2.11 to an Ubuntu 24.04 Docker image that runs TensorFlow 2.21 on an RTX 4090. Keep `train.py` essentially unchanged, keep the existing `nvidia/cuda` base-image structure, and validate with the exact GPU training command from `GOALS.md`.
+Upgrade this repository from Ubuntu 20.04 / CUDA 11.2 / TensorFlow 2.11 to an Ubuntu 24.04 Docker image that runs TensorFlow 2.19 on an RTX 4090. Keep `train.py` essentially unchanged, keep the existing `nvidia/cuda` base-image structure, and validate with the exact GPU training command from `GOALS.md`.
 
 ## Steps
 
@@ -24,19 +24,19 @@ Upgrade this repository from Ubuntu 20.04 / CUDA 11.2 / TensorFlow 2.11 to an Ub
    - Skip CUDA/cuDNN package installation on non-x86 architectures such as `aarch64`.
    - Preserve the Docker flow after the CUDA script: requirements install, app copy, and training entrypoint.
 
-4. Update Python dependencies for TensorFlow 2.21.
-   - Install TensorFlow 2.21.
+4. Update Python dependencies for TensorFlow 2.19.
+   - Install TensorFlow 2.19.
    - Remove stale TensorFlow 2.11-era pins such as `keras==2.11.0` and `protobuf==3.19.*` unless validation proves a new explicit pin is required.
-   - Use a NumPy version accepted by TensorFlow 2.21 and the Python version in Ubuntu 24.04.
+   - Use a NumPy version accepted by TensorFlow 2.19 and the Python version in Ubuntu 24.04.
    - Install `python3` and `python3-pip` from apt; `python3-pip` pulls `setuptools`, `wheel`, and CA certificates as dependencies.
 
 5. Keep `train.py` stable and avoid fake GPU signals.
    - Do not hardcode GPU or RTX 4090 messages.
-   - Keep the existing `tf.config.list_physical_devices('GPU')` detection unless a minimal TensorFlow 2.21 compatibility adjustment is required.
+   - Keep the existing `tf.config.list_physical_devices('GPU')` detection unless a minimal TensorFlow 2.19 compatibility adjustment is required.
    - Preserve model architecture, random seeds, optimizer, batch size, and training flow unless accuracy validation proves a real stack-level issue.
 
 6. Update SavedModel export only if needed.
-   - Test whether `conversion.py` still works under TensorFlow 2.21.
+   - Test whether `conversion.py` still works under TensorFlow 2.19.
    - If `model.save(..., save_format='tf')` fails under newer Keras behavior, switch to a supported SavedModel export while preserving the `out/saved_model` directory and `out/saved_model.zip` artifact contract.
 
 7. Build and iterate.
