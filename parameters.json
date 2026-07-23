@@ -2,7 +2,7 @@
     "version": 1,
     "type": "machine-learning",
     "info": {
-        "name": "Keras multi-layer perceptron",
+        "name": "Keras multi-layer perceptron (TF2.21)",
         "description": "Demonstration of a simple Keras custom learn block with CUDA drivers that can run on both CPU and GPU.",
         "indRequiresGpu": false,
         "operatesOn": "other",

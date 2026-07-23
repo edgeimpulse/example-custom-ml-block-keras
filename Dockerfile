@@ -3,40 +3,20 @@ ARG UBUNTU_VERSION=24.04
 
 ARG ARCH=
 ARG CUDA=12.9.1
-FROM nvidia/cuda${ARCH:+-$ARCH}:${CUDA}-base-ubuntu${UBUNTU_VERSION} as base
+ARG CUDA_FLAVOR=cudnn-devel
+FROM nvidia/cuda${ARCH:+-$ARCH}:${CUDA}-${CUDA_FLAVOR}-ubuntu${UBUNTU_VERSION} as base
 ARG CUDA
-ARG CUDA_PKG_VERSION=12-9
-ARG CUDNN_PACKAGE=cudnn9-cuda-12-9
 # Let us install tzdata painlessly
 ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /app
 
-# When building on Windows we'll get CRLF line endings, which we cannot run from bash...
+# Install Python 3 and pip
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    apt update && apt install -y dos2unix && \
-    rm -r /var/lib/apt/lists/
+    apt-get update && apt-get install -y --no-install-recommends python3 python3-pip && \
+    rm -rf /var/lib/apt/lists/*
 
-# CUDA drivers
-SHELL ["/bin/bash", "-c"]
-COPY dependencies/install_cuda.sh ./install_cuda.sh
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    dos2unix ./install_cuda.sh && \
-    /bin/bash ./install_cuda.sh && \
-    rm install_cuda.sh && \
-    rm -r /var/lib/apt/lists/
-
-# Install base packages
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    apt update && apt install -y curl zip git lsb-release software-properties-common apt-transport-https vim wget && \
-    rm -r /var/lib/apt/lists/
-
-# Install Python 3
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    apt update && apt install -y python3 python3-pip python3-setuptools && \
-    rm -r /var/lib/apt/lists/
-
-# Copy Python requirements in and install them
+# Copy Python requirements in and install them (--break-system-packages is required if we don't use a venv)
 COPY requirements.txt ./
 RUN --mount=type=cache,target=/root/.cache/pip \
     python3 -m pip install --break-system-packages -r requirements.txt

@@ -10,20 +10,20 @@ Upgrade this repository from Ubuntu 20.04 / CUDA 11.2 / TensorFlow 2.11 to an Ub
    - Preserve validation accuracy around 0.98 after 5 epochs.
    - Preserve `Saving saved model OK` and `out/saved_model.zip`.
 
-2. Choose and test the upgraded `nvidia/cuda` Ubuntu 24.04 base tag.
+2. Choose and test the upgraded NVIDIA-owned `nvidia/cuda` Ubuntu 24.04 base tag.
    - Keep the Dockerfile pattern that starts from `nvidia/cuda${ARCH:+-$ARCH}:...-ubuntu...`.
-   - Upgrade the `UBUNTU_VERSION` and `CUDA` args/tag to a TensorFlow 2.21-compatible CUDA release that has an `nvidia/cuda` Ubuntu 24.04 image.
+   - Use NVIDIA's CUDA/cuDNN devel flavor so CUDA, cuDNN, `ptxas`, `libdevice`, and `libnvJitLink` come from NVIDIA's base image.
    - Do not switch to a TensorFlow-provided image, generic Python image, or any other non-`nvidia/cuda` base image.
 
-3. Update the existing CUDA dependency installation path.
-   - Keep `dependencies/install_cuda.sh` as the CUDA dependency installation hook.
-   - Update its Ubuntu 24.04 repository/key/package assumptions for the selected CUDA version.
-   - Preserve the existing Docker flow: CUDA base image, CUDA install hook, base packages, Python, requirements, app copy, and training entrypoint.
+3. Remove the custom CUDA dependency installation path.
+   - Skip `dependencies/install_cuda.sh` because the NVIDIA `cudnn-devel` image already includes the required CUDA/cuDNN runtime and toolkit files.
+   - Preserve the Docker flow after the base image: minimal Python/pip install, requirements, app copy, and training entrypoint.
 
 4. Update Python dependencies for TensorFlow 2.21.
    - Install TensorFlow 2.21.
    - Remove stale TensorFlow 2.11-era pins such as `keras==2.11.0` and `protobuf==3.19.*` unless validation proves a new explicit pin is required.
    - Use a NumPy version accepted by TensorFlow 2.21 and the Python version in Ubuntu 24.04.
+   - Install only `python3` and `python3-pip` from apt; `python3-pip` pulls `setuptools`, `wheel`, and CA certificates as dependencies.
 
 5. Keep `train.py` stable and avoid fake GPU signals.
    - Do not hardcode GPU or RTX 4090 messages.
@@ -36,7 +36,7 @@ Upgrade this repository from Ubuntu 20.04 / CUDA 11.2 / TensorFlow 2.11 to an Ub
 
 7. Build and iterate.
    - Run `docker build -t custom-ml-keras .` from the repo root.
-   - Fix build blockers related to Ubuntu 24.04 package names, Python packaging, TensorFlow dependency resolution, CUDA library discovery, or stale CUDA install assumptions.
+   - Fix build blockers related to Ubuntu 24.04 package names, Python packaging, TensorFlow dependency resolution, or CUDA library discovery.
 
 8. Validate GPU visibility.
    - Run `docker run --gpus all --rm custom-ml-keras python3 -c "import tensorflow as tf; print(tf.__version__); print(tf.config.list_physical_devices('GPU'))"`.
