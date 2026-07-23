@@ -10,13 +10,11 @@ FROM nvidia/cuda${ARCH:+-$ARCH}:${CUDA}-${CUDA_FLAVOR}-ubuntu${UBUNTU_VERSION} a
 ARG CUDA
 ARG CUDA_SHORT
 ARG CUDA_PACKAGE_VERSION
-# Let us install tzdata painlessly
-ENV DEBIAN_FRONTEND=noninteractive \
-    PYTHONDONTWRITEBYTECODE=1
+ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /app
 
-# Install Python, pip, and dos2unix for Windows-friendly script execution.
+# Install Python, pip, and dos2unix (as when you check out install_cuda.sh on Windows it converts to CRLF which bash does not like in the next step)
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get update && apt-get install -y --no-install-recommends \
         python3 python3-pip dos2unix && \
@@ -33,7 +31,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 # Copy Python requirements in and install them (--break-system-packages is required if we don't use a venv)
 COPY requirements.txt ./
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip3 install --break-system-packages --no-compile -r requirements.txt
+    pip3 install --break-system-packages -r requirements.txt
 
 # https://stackoverflow.com/questions/43147983/could-not-create-cudnn-handle-cudnn-status-internal-error
 ENV TF_FORCE_GPU_ALLOW_GROWTH=true
