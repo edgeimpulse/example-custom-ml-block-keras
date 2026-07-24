@@ -53,6 +53,8 @@ You run this pipeline via Docker. This encapsulates all dependencies and package
     $ docker run --rm -v ${PWD}$:/app custom-ml-keras --data-directory /app/data --epochs 30 --learning-rate 0.01 --out-directory out/
     ```
 
+    > **Training on GPU:** If you're on an x86 machine with an Nvidia GPU, you can pass `--gpus=all` (right after `docker run`) to train on GPU.
+
 10. This creates a saved model ZIP file in the 'out' directory.
 
 #### Adding extra dependencies
