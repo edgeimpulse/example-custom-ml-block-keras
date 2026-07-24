@@ -1,42 +1,34 @@
- #!/bin/bash
-set -ex
+#!/usr/bin/env bash
+set -euo pipefail
 
-UNAME=`uname -m`
-
-if [ "$UNAME" == "aarch64" ]; then
-    echo "Skipping CUDA on AARCH64..."
-else
-    # Update the CUDA Linux GPG Repository Key
-    # See: https://developer.nvidia.com/blog/updating-the-cuda-linux-gpg-repository-key/
-    apt-key del 7fa2af80
-    apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
-    apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub
-
-    apt-get update && apt-get install -y --no-install-recommends \
-        build-essential \
-        cuda-command-line-tools-${CUDA/./-} \
-        libcublas-${CUDA/./-} \
-        cuda-nvrtc-${CUDA/./-} \
-        libcufft-${CUDA/./-} \
-        libcurand-${CUDA/./-} \
-        libcusolver-${CUDA/./-} \
-        libcusparse-${CUDA/./-} \
-        curl \
-        libcudnn8=${CUDNN}+cuda${CUDA} \
-        libfreetype6-dev \
-        libhdf5-serial-dev \
-        libzmq3-dev \
-        pkg-config \
-        software-properties-common \
-        unzip
-
-    [[ "${ARCH}" = "ppc64le" ]] || { apt-get update && \
-        apt-get install -y --no-install-recommends libnvinfer${LIBNVINFER_MAJOR_VERSION}=${LIBNVINFER}+cuda11.0 \
-        libnvinfer-plugin${LIBNVINFER_MAJOR_VERSION}=${LIBNVINFER}+cuda11.0 \
-        && apt-get clean \
-        && rm -rf /var/lib/apt/lists/*; }
-
-    ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1 \
-        && echo "/usr/local/cuda/lib64/stubs" > /etc/ld.so.conf.d/z-cuda-stubs.conf \
-        && ldconfig
+architecture="$(dpkg --print-architecture)"
+if [[ "${architecture}" != "amd64" ]]; then
+    echo "Skipping NVIDIA CUDA/cuDNN package install on ${architecture}"
+    exit 0
 fi
+
+cuda_short="${CUDA_SHORT:-12.9}"
+cuda_package_version="${CUDA_PACKAGE_VERSION:-12-9}"
+
+apt-get update
+apt-get install -y --no-install-recommends \
+    libcudnn9-cuda-12 libcublas-${cuda_package_version} \
+    libcufft-${cuda_package_version} libcurand-${cuda_package_version} \
+    libcusolver-${cuda_package_version} libcusparse-${cuda_package_version} \
+    cuda-nvrtc-${cuda_package_version} libnvjitlink-${cuda_package_version}
+
+apt-get download cuda-nvvm-${cuda_package_version} cuda-nvcc-${cuda_package_version}
+mkdir -p /tmp/cuda-nvvm /tmp/cuda-nvcc \
+    /usr/local/cuda-${cuda_short}/bin \
+    /usr/local/cuda-${cuda_short}/nvvm/libdevice
+dpkg-deb -x cuda-nvvm-${cuda_package_version}_*.deb /tmp/cuda-nvvm
+dpkg-deb -x cuda-nvcc-${cuda_package_version}_*.deb /tmp/cuda-nvcc
+cp /tmp/cuda-nvcc/usr/local/cuda-${cuda_short}/bin/ptxas \
+    /usr/local/cuda-${cuda_short}/bin/
+cp /tmp/cuda-nvvm/usr/local/cuda-${cuda_short}/nvvm/libdevice/libdevice.10.bc \
+    /usr/local/cuda-${cuda_short}/nvvm/libdevice/
+
+rm -f /usr/lib/x86_64-linux-gnu/libcudnn_engines_precompiled.so*
+rm -rf /tmp/cuda-nvvm /tmp/cuda-nvcc \
+    cuda-nvvm-${cuda_package_version}_*.deb cuda-nvcc-${cuda_package_version}_*.deb \
+    /usr/share/doc/* /usr/share/man/* /usr/share/locale/*
