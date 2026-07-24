@@ -26,6 +26,7 @@ Upgrade this repository from Ubuntu 20.04 / CUDA 11.2 / TensorFlow 2.11 to an Ub
 
 4. Update Python dependencies for TensorFlow 2.19.
    - Install TensorFlow 2.19.
+   - Install `tf_keras` 2.19 and set `TF_USE_LEGACY_KERAS=1` so the saved artifact remains a Keras-aware SavedModel with `.layers`.
    - Remove stale TensorFlow 2.11-era pins such as `keras==2.11.0` and `protobuf==3.19.*` unless validation proves a new explicit pin is required.
    - Use a NumPy version accepted by TensorFlow 2.19 and the Python version in Ubuntu 24.04.
    - Install `python3` and `python3-pip` from apt; `python3-pip` pulls `setuptools`, `wheel`, and CA certificates as dependencies.
@@ -37,7 +38,7 @@ Upgrade this repository from Ubuntu 20.04 / CUDA 11.2 / TensorFlow 2.11 to an Ub
 
 6. Update SavedModel export only if needed.
    - Test whether `conversion.py` still works under TensorFlow 2.19.
-   - If `model.save(..., save_format='tf')` fails under newer Keras behavior, switch to a supported SavedModel export while preserving the `out/saved_model` directory and `out/saved_model.zip` artifact contract.
+   - Use legacy `tf.keras` `model.save(..., save_format='tf')` so downstream embedding code can load a Keras model and access `.layers` while preserving the `out/saved_model` directory and `out/saved_model.zip` artifact contract.
 
 7. Build and iterate.
    - Run `docker build -t custom-ml-keras .` from the repo root.

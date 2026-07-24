@@ -33,11 +33,13 @@ COPY requirements.txt ./
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip3 install --break-system-packages -r requirements.txt
 
-# https://stackoverflow.com/questions/43147983/could-not-create-cudnn-handle-cudnn-status-internal-error
-ENV TF_FORCE_GPU_ALLOW_GROWTH=true
-
 # Copy the rest of your training scripts in
 COPY . ./
+
+# https://stackoverflow.com/questions/43147983/could-not-create-cudnn-handle-cudnn-status-internal-error
+ENV TF_FORCE_GPU_ALLOW_GROWTH=true
+# Ensure we can output a valid Keras SavedModel (not a TF one) - so the data explorer works in Studio
+ENV TF_USE_LEGACY_KERAS=1
 
 # And tell us where to run the pipeline
 ENTRYPOINT ["python3", "-u", "train.py"]
