@@ -1,2 +1,4 @@
 data/
 out/
+__pycache__/
+.ei-block-config

@@ -28,7 +28,6 @@ cp /tmp/cuda-nvcc/usr/local/cuda-${cuda_short}/bin/ptxas \
 cp /tmp/cuda-nvvm/usr/local/cuda-${cuda_short}/nvvm/libdevice/libdevice.10.bc \
     /usr/local/cuda-${cuda_short}/nvvm/libdevice/
 
-rm -f /usr/lib/x86_64-linux-gnu/libcudnn_engines_precompiled.so*
 rm -rf /tmp/cuda-nvvm /tmp/cuda-nvcc \
     cuda-nvvm-${cuda_package_version}_*.deb cuda-nvcc-${cuda_package_version}_*.deb \
     /usr/share/doc/* /usr/share/man/* /usr/share/locale/*
