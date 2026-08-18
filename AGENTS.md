@@ -37,7 +37,7 @@ We'll need some metadata and configuration for the block. Re-run this every time
     edge-impulse-blocks runner --download-data data/
 
     # If this prompts for a project -> select the same project that matches .ei-api-key
-    # If this prompts for an impulse -> ask the user.
+    # If this prompts for an impulse -> ask the user. Also store the impulse that the user picked in .
     ```
 
     This creates train / validation (although named `test` - it's the validation set) `.npy` files (should already be the right shape and scaled correctly) in `data/`.

@@ -17,7 +17,7 @@ if (!fs.existsSync(EI_BLOCK_CONFIG)) {
     process.exit(1);
 }
 
-const API_KEY = (fs.readFileSync(Path.join(API_KEY_FILE76), 'utf-8')).trim();
+const API_KEY = (fs.readFileSync(Path.join(API_KEY_FILE), 'utf-8')).trim();
 if (!API_KEY.startsWith('ei_')) {
     console.log(`API Key (in .ei-api-key) does not start with "ei_"`);
     process.exit(1);
@@ -39,6 +39,21 @@ program
         const impulseId = program.impulseId ? Number(program.impulseId) : undefined;
         const learnId = program.learnId ? Number(program.learnId) : undefined;
 
+        const blockConfig = JSON.parse(await fs.promises.readFile(EI_BLOCK_CONFIG, 'utf-8'));
+        if (blockConfig.version !== 2) {
+            throw new Error(`${EI_BLOCK_CONFIG}, version is not "2" but "${blockConfig.version}"`);
+        }
+        if (!(blockConfig.config || { })['edgeimpulse.com']) {
+            throw new Error(`${EI_BLOCK_CONFIG}, missing "config[edgeimpulse.com]". Did you run 'edge-impulse-blocks init'`);
+        }
+        if (!blockConfig.config['edgeimpulse.com']['organizationId']) {
+            console.log(blockConfig.config['edgeimpulse.com']);
+            throw new Error(`${EI_BLOCK_CONFIG}, missing "config[edgeimpulse.com][organizationId]". Did you run 'edge-impulse-blocks init'`);
+        }
+        if (!blockConfig.config['edgeimpulse.com']['id']) {
+            throw new Error(`${EI_BLOCK_CONFIG}, missing "config[edgeimpulse.com][id]". Did you run 'edge-impulse-blocks push'`);
+        }
+
         if (pushBlock) {
             console.log('Pushing block...')
             await spawnHelper('edge-impulse-blocks', ['push'], { cwd: Path.join(__dirname, '..') });
@@ -54,8 +69,9 @@ program
 
         // list all projects (if you authenticate via API you just get one, the project for which you have the API key)
         let project = (await api.projects.listProjects()).projects[0];
-        console.log('Handling', project.owner, '/', project.name);
+        console.log('Project:', project.owner, '/', project.name);
 
+        // select impulse / learn block
         let impulseRes = await api.impulse.getAllImpulses(project.id);
 
         let impulse;
@@ -101,19 +117,17 @@ program
             "autoClassWeights": false,
             "profileInt8": true,
             "mode": "visual",
-            "learningRate": 0.0005, // <-- not used
-            "trainingCycles": 20, // <-- not used
             "visualLayers": [{
                 "type": "transfer_organization",
-                "organizationModelId": 8852
+                "organizationModelId": blockConfig.config['edgeimpulse.com']['id'],
             }],
             "augmentationPolicyImage": "none",
             "useLearnedOptimizer": false,
             "blockParameters": {},
-            "customParameters": {
+            "customParameters": {   // <-- maps to parameters.json
                 "epochs": "30",
                 "learning-rate": "0.001",
-            }
+            },
         });
         console.log('Created train job with ID', trainJob.id);
 
