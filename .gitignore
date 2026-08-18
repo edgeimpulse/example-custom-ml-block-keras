@@ -5,3 +5,5 @@ data/
 ei-block-data/
 out/
 .DS_Store
+.ei-api-key
+test/node_modules/

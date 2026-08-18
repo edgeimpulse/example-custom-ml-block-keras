@@ -1,0 +1,12 @@
+{
+  "name": "ei-test-block",
+  "version": "1.0.0",
+  "description": "Test whether your custom ML block works",
+  "main": "verify-block-in-edge-impulse.js",
+  "author": "Jan Jongboom <jan@edgeimpulse.com>",
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "commander": "5.1.0",
+    "edge-impulse-api": "1.95.4"
+  }
+}
