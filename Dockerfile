@@ -28,6 +28,11 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     rm install_cuda.sh && \
     rm -rf /var/lib/apt/lists/*
 
+# https://stackoverflow.com/questions/43147983/could-not-create-cudnn-handle-cudnn-status-internal-error
+ENV TF_FORCE_GPU_ALLOW_GROWTH=true
+# Ensure we can output a valid Keras SavedModel (not a TF one) - so the data explorer works in Studio
+ENV TF_USE_LEGACY_KERAS=1
+
 # Copy Python requirements in and install them (--break-system-packages is required if we don't use a venv)
 COPY requirements.txt ./
 RUN --mount=type=cache,target=/root/.cache/pip \
@@ -35,11 +40,6 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 # Copy the rest of your training scripts in
 COPY . ./
-
-# https://stackoverflow.com/questions/43147983/could-not-create-cudnn-handle-cudnn-status-internal-error
-ENV TF_FORCE_GPU_ALLOW_GROWTH=true
-# Ensure we can output a valid Keras SavedModel (not a TF one) - so the data explorer works in Studio
-ENV TF_USE_LEGACY_KERAS=1
 
 # And tell us where to run the pipeline
 ENTRYPOINT ["python3", "-u", "train.py"]
