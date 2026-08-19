@@ -1,3 +1,7 @@
 data/
 out/
 scripts/
+.ei-block-config
+.ei-project-config.json
+out-*/
+out*.log

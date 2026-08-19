@@ -96,3 +96,4 @@ Once your block seems correct locally, you can push it to Edge Impulse and test 
 * All classification models require a Softmax at the end.
 * Run your Python code in the Docker container. Do not run the global Python interpreter. It might have wildly different dependencies.
 * If conversion to TFLite fails (in Edge Impulse), debug locally. You have the same TensorFlow version as Edge Impulse. Test some conversion logic locally to test it out first.
+* If you add new parameters to parameters.json, actually run multiple combinations of parameters to ensure all of them work.
