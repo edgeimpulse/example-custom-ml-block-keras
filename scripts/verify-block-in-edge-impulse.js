@@ -35,6 +35,7 @@ program
     .description('Verify blocks in Edge Impulse')
     .version(packageVersion)
     .option('--push-block', 'Push the block to Edge Impulse')
+    .option('--skip-training', 'Do not train a new model')
     .allowUnknownOption(false)
     .parse(process.argv);
 
@@ -42,6 +43,7 @@ program
 (async () => {
     try {
         const pushBlock = !!program.pushBlock;
+        const skipTraining = !!program.skipTraining;
 
         const blockConfig = JSON.parse(await fs.promises.readFile(EI_BLOCK_CONFIG, 'utf-8'));
         if (blockConfig.version !== 2) {
@@ -88,36 +90,44 @@ program
             throw new Error(`Could not find learn block with ID ${PROJECT_CONFIG.learnBlockId} (from .ei-project-config.json)`);
         }
 
-        // and retrain with same config
-        let trainJob = await api.jobs.trainKerasJob(project.id, learnBlock.id, {
-            "trainTestSplit": 0.2,
-            "customValidationMetadataKey": "",
-            "autoClassWeights": false,
-            "profileInt8": true,
-            "mode": "visual",
-            "visualLayers": [{
-                "type": "transfer_organization",
-                "organizationModelId": blockConfig.config['edgeimpulse.com']['id'],
-            }],
-            "augmentationPolicyImage": "none",
-            "useLearnedOptimizer": false,
-            "blockParameters": {},
-            "customParameters": {   // <-- maps to parameters.json
-                "epochs": "30",
-                "learning-rate": "0.001",
-            },
-        });
-        console.log('Created train job with ID', trainJob.id);
+        if (!skipTraining) {
+            // and retrain with same config
+            let trainJob = await api.jobs.trainKerasJob(project.id, learnBlock.id, {
+                "trainTestSplit": 0.2,
+                "customValidationMetadataKey": "",
+                "autoClassWeights": false,
+                "profileInt8": true,
+                "mode": "visual",
+                "visualLayers": [{
+                    "type": "transfer_organization",
+                    "organizationModelId": blockConfig.config['edgeimpulse.com']['id'],
+                }],
+                "augmentationPolicyImage": "none",
+                "useLearnedOptimizer": false,
+                "blockParameters": {},
+                "customParameters": {   // <-- maps to parameters.json
+                    "epochs": "30",
+                    "learning-rate": "0.001",
+                },
+            });
+            console.log('Created train job with ID', trainJob.id);
 
-        await api.runJobUntilCompletion({
-            type: 'project',
-            projectId: project.id,
-            jobId: trainJob.id,
-        }, data => {
-            process.stdout.write(data);
-        });
+            await api.runJobUntilCompletion({
+                type: 'project',
+                projectId: project.id,
+                jobId: trainJob.id,
+            }, data => {
+                process.stdout.write(data);
+            });
 
-        console.log('Train job completed');
+            console.log('Train job completed');
+        }
+        else {
+            console.log('Not training (--skip-training) passed in');
+        }
+
+        const kerasMetadata = await api.learn.getKerasMetadata(project.id, learnBlock.id);
+    printModelValidationMetrics(kerasMetadata.modelValidationMetrics, kerasMetadata.classNames);
     }
     catch (ex) {
         console.log('Failed to make a request', ex);
@@ -170,4 +180,70 @@ function spawnHelper(
             }
         });
     });
+}
+
+function printModelValidationMetrics(modelValidationMetrics, classNames) {
+    if (!modelValidationMetrics || modelValidationMetrics.length === 0) {
+        console.log('No model validation metrics found');
+        return;
+    }
+
+    console.log('');
+    console.log('Model validation metrics:');
+
+    for (const metrics of modelValidationMetrics) {
+        console.log('');
+        console.log(`Variant: ${metrics.type}`);
+        console.log(`  Accuracy: ${formatMetric(metrics.accuracy)}`);
+        console.log(`  Loss: ${formatMetric(metrics.loss)}`);
+        printAdditionalMetrics(metrics.additionalMetrics);
+        console.log('  Confusion matrix:');
+        printConfusionMatrix(metrics.confusionMatrix, classNames);
+    }
+}
+
+function formatMetric(value) {
+    if (typeof value !== 'number') {
+        return 'n/a';
+    }
+    return value.toFixed(4);
+}
+
+function printConfusionMatrix(confusionMatrix, classNames) {
+    if (!confusionMatrix || confusionMatrix.length === 0) {
+        console.log('    n/a');
+        return;
+    }
+
+    const labels = confusionMatrix.map((_, ix) => classNames && classNames[ix] ? classNames[ix] : `class ${ix + 1}`);
+    const headerLabel = 'actual \\ predicted';
+    const rows = confusionMatrix.map((row, ix) => [labels[ix], ...row.map(value => formatMetric(value))]);
+    const header = [headerLabel, ...labels];
+    const widths = header.map((label, ix) => Math.max(
+        label.length,
+        ...rows.map(row => String(row[ix] || '').length)
+    ));
+
+    console.log(`    ${formatTableRow(header, widths)}`);
+    console.log(`    ${widths.map(width => '-'.repeat(width)).join('-+-')}`);
+    for (const row of rows) {
+        console.log(`    ${formatTableRow(row, widths)}`);
+    }
+}
+
+function formatTableRow(row, widths) {
+    return row.map((cell, ix) => String(cell).padEnd(widths[ix])).join(' | ');
+}
+
+function printAdditionalMetrics(additionalMetrics) {
+    if (!additionalMetrics || additionalMetrics.length === 0) {
+        return;
+    }
+
+    for (const metric of additionalMetrics) {
+        const value = typeof metric.fullPrecisionValue === 'number' ?
+            formatMetric(metric.fullPrecisionValue) :
+            metric.value;
+        console.log(`  ${metric.name}: ${value}`);
+    }
 }
