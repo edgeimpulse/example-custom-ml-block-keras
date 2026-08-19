@@ -2,10 +2,11 @@
     "version": 1,
     "type": "machine-learning",
     "info": {
-        "name": "Keras multi-layer perceptron",
-        "description": "Demonstration of a simple Keras custom learn block with CUDA drivers that can run on both CPU and GPU.",
+        "name": "MobileNetV3 transfer learning",
+        "description": "Image classification transfer learning block using a frozen MobileNetV3-Small minimalistic ImageNet backbone and a softmax classification head.",
         "indRequiresGpu": false,
-        "operatesOn": "other",
+        "operatesOn": "image",
+        "imageInputScaling": "0..255",
         "repositoryUrl": "https://github.com/edgeimpulse/example-custom-ml-block-keras"
     },
     "parameters": [
@@ -22,6 +23,102 @@
             "type": "float",
             "help": "How fast the neural network learns, if the network overfits quickly, then lower the learning rate.",
             "param": "learning-rate"
+        },
+        {
+            "name": "Model size",
+            "value": "small",
+            "type": "select",
+            "valid": [
+                {
+                    "label": "Small - 1.5M params, 6 MB",
+                    "value": "small"
+                },
+                {
+                    "label": "Large - 3.9M params, 16 MB",
+                    "value": "large"
+                }
+            ],
+            "param": "model-size"
+        },
+        {
+            "name": "Use pretrained weights",
+            "value": true,
+            "type": "flag",
+            "help": "If enabled, transfer learns on existing ImageNet trained weights. For most usecases you want to keep this enabled.",
+            "param": "use-pretrained-weights"
+        },
+        {
+            "name": "Freeze % of layers",
+            "value": 90,
+            "type": "int",
+            "help": "The percentage of layers in the transfer learning base model to freeze. These layers will not be retrained.",
+            "param": "freeze-percentage-of-layers",
+            "showIf": {
+                "parameter": "use-pretrained-weights",
+                "operator": "eq",
+                "value": "true"
+            }
+        },
+        {
+            "name": "Last layers",
+            "type": "string",
+            "value": "dense: 32, dropout: 0.1",
+            "placeholder": "dense: 32, dropout: 0.1",
+            "help": "Extra layers after the MobileNetV3 base model. Valid options are 'dense: X' (where X=neurons), and 'dropout: X' (where X=dropout rate between 0..1). Separate options by a comma, e.g. \"dense: 32, dropout: 0.1\". Leave empty to omit.",
+            "param": "last-layers",
+            "allowEmpty": true
+        },
+        {
+            "name": "Data augmentation",
+            "type": "string",
+            "value": "",
+            "placeholder": "flip, crop, brightness",
+            "help": "Data augmentations to apply to your training dataset. Valid options are 'flip', 'crop', 'brightness'. Or leave empty to disable data augmentation.",
+            "param": "data-augmentation",
+            "hint": "Valid options: flip, crop, brightness",
+            "allowEmpty": true
+        },
+        {
+            "name": "Batch size",
+            "value": 16,
+            "type": "int",
+            "help": "The batch size to use during training. Consider reducing this for larger models.",
+            "param": "batch-size",
+            "section": "advanced"
+        },
+        {
+            "name": "Early stopping",
+            "type": "flag",
+            "value": true,
+            "help": "If enabled, stops training when there's no improvement in the loss.",
+            "param": "early-stopping",
+            "section": "advanced"
+        },
+        {
+            "name": "Early stopping patience",
+            "value": 5,
+            "type": "int",
+            "help": "Number of epochs with no improvement after which training will be stopped.",
+            "param": "early-stopping-patience",
+            "section": "advanced",
+            "showIf": {
+                "parameter": "early-stopping",
+                "operator": "eq",
+                "value": "true"
+            }
+        },
+        {
+            "name": "Early stopping min. delta",
+            "value": 0.001,
+            "type": "float",
+            "help": "Minimum change in the monitored quantity to qualify as an improvement, i.e. an absolute change of less than min_delta, will count as no improvement.",
+            "param": "early-stopping-min-delta",
+            "section": "advanced",
+            "showIf": {
+                "parameter": "early-stopping",
+                "operator": "eq",
+                "value": "true"
+            }
         }
     ]
 }

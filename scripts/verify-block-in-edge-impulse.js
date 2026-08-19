@@ -31,6 +31,32 @@ if (!Number.isInteger(PROJECT_CONFIG.learnBlockId)) {
     process.exit(1);
 }
 
+let activeJob = null;
+let cancelInProgress = false;
+
+process.on('SIGINT', async () => {
+    if (cancelInProgress) {
+        process.exit(130);
+    }
+
+    cancelInProgress = true;
+    if (activeJob) {
+        console.log(`\nCancelling Edge Impulse job ${activeJob.jobId}...`);
+        try {
+            await activeJob.api.jobs.cancelJob(activeJob.projectId, activeJob.jobId, { forceCancel: 'true' });
+            console.log(`Cancelling Edge Impulse job ${activeJob.jobId} OK`);
+        }
+        catch (ex) {
+            console.log(`Failed to cancel Edge Impulse job ${activeJob.jobId}`, ex);
+        }
+    }
+    else {
+        console.log('\nNo active Edge Impulse job to cancel');
+    }
+
+    process.exit(130);
+});
+
 program
     .description('Verify blocks in Edge Impulse')
     .version(packageVersion)
@@ -62,7 +88,7 @@ program
 
         if (pushBlock) {
             console.log('Pushing block...')
-            await spawnHelper('edge-impulse-blocks', ['push'], { cwd: Path.join(__dirname, '..') });
+            await spawnHelper('edge-impulse-blocks', ['push', '--dont-prompt-for-config-change'], { cwd: Path.join(__dirname, '..') });
             blockConfig = JSON.parse(await fs.promises.readFile(EI_BLOCK_CONFIG, 'utf-8'));
             if (!blockConfig.config['edgeimpulse.com']['id']) {
                 throw new Error(`${EI_BLOCK_CONFIG}, missing "config[edgeimpulse.com][id]" after 'edge-impulse-blocks push'`);
@@ -112,17 +138,37 @@ program
                 "customParameters": {   // <-- maps to parameters.json
                     "epochs": "30",
                     "learning-rate": "0.001",
+                    "model-size": "small",
+                    "use-pretrained-weights": "true",
+                    "freeze-percentage-of-layers": "90",
+                    "last-layers": "dense: 32, dropout: 0.1",
+                    "data-augmentation": "",
+                    "batch-size": "16",
+                    "early-stopping": "true",
+                    "early-stopping-patience": "5",
+                    "early-stopping-min-delta": "0.001",
                 },
             });
             console.log('Created train job with ID', trainJob.id);
 
-            await api.runJobUntilCompletion({
-                type: 'project',
+            activeJob = {
+                api,
                 projectId: project.id,
                 jobId: trainJob.id,
-            }, data => {
-                process.stdout.write(data);
-            });
+            };
+
+            try {
+                await api.runJobUntilCompletion({
+                    type: 'project',
+                    projectId: project.id,
+                    jobId: trainJob.id,
+                }, data => {
+                    process.stdout.write(data);
+                });
+            }
+            finally {
+                activeJob = null;
+            }
 
             console.log('Train job completed');
         }
@@ -149,10 +195,19 @@ function spawnHelper(
         const p = spawn(command, args, { env: process.env, cwd: opts.cwd });
 
         const allData = [];
+        const promptResponses = opts.promptResponses || [];
+        const answeredPrompts = new Set();
 
         p.stdout.on('data', (data) => {
             process.stdout.write(data);
             allData.push(data);
+            const output = Buffer.concat(allData).toString('utf-8');
+            for (const promptResponse of promptResponses) {
+                if (!answeredPrompts.has(promptResponse.prompt) && output.includes(promptResponse.prompt)) {
+                    p.stdin.write(promptResponse.response);
+                    answeredPrompts.add(promptResponse.prompt);
+                }
+            }
             if (
                 opts.readySignal &&
                 data.toString().includes(opts.readySignal)
