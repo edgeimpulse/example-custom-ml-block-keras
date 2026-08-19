@@ -12,7 +12,19 @@ Before you start:
 
 1. Ensure the [Edge Impulse CLI](https://docs.edgeimpulse.com/tools/clis/edge-impulse-cli) is installed. `edge-impulse-blocks` should be in your PATH.
 2. Ensure Docker Desktop is installed. If it's not, prompt the user to install it.
-3. Prompt the user for an API key to an Edge Impulse project. This project should match the type of the custom ML block they want to develop (e.g. image classification, object detection, or plain classification/regression). Store this API key in `.ei-api-key`. Verify that you can make a `GET` request to `https://studio.edgeimpulse.com/v1/api/projects/api-key-info` (set `x-api-key` header to the API key) - and that the `role` (in the response of the GET request) of the API key is `admin`.
+3. Prompt the user for an API key to an Edge Impulse project. This project should match the type of the custom ML block they want to develop (e.g. image classification, object detection, or plain classification/regression). Verify that you can make a `GET` request to `https://studio.edgeimpulse.com/v1/api/projects/api-key-info` (set `x-api-key` header to the API key) - and that the `role` (in the response of the GET request) of the API key is `admin`.
+4. Prompt the user for an impulse (`GET` request to `https://studio.edgeimpulse.com/v1/api/PROJECT_ID/impulses`) (use PROJECT_ID from step 3).
+5. Create a file `.ei-info` with:
+
+    ```
+    {
+        "projectId": XXX,
+        "projectApiKey": YYY,
+        "impulseId": ZZZ
+    }
+    ```
+
+    (With the values retrieved in the previous steps)
 
 ## Preparing a new block
 
@@ -41,6 +53,9 @@ We'll need some metadata and configuration for the block. Re-run this every time
     ```
 
     This creates train / validation (although named `test` - it's the validation set) `.npy` files (should already be the right shape and scaled correctly) in `data/`.
+
+4.
+
 
 ## Training a model
 

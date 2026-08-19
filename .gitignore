@@ -5,5 +5,5 @@ data/
 ei-block-data/
 out/
 .DS_Store
-.ei-api-key
+.ei-project-config.json
 scripts/node_modules/

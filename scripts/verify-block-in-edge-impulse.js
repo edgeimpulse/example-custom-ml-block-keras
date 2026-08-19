@@ -5,11 +5,11 @@ const fs = require('node:fs');
 const program = require('commander');
 
 const packageVersion = JSON.parse(fs.readFileSync(Path.join(__dirname, 'package.json'), 'utf-8')).version;
-const API_KEY_FILE = Path.join(__dirname, '..', '.ei-api-key');
+const PROJECT_CONFIG_FILE = Path.join(__dirname, '..', '.ei-project-config.json');
 const EI_BLOCK_CONFIG = Path.join(__dirname, '..', '.ei-block-config');
 
-if (!fs.existsSync(API_KEY_FILE)) {
-    console.log(`Missing ${API_KEY_FILE}`);
+if (!fs.existsSync(PROJECT_CONFIG_FILE)) {
+    console.log(`Missing ${PROJECT_CONFIG_FILE}. Run 'node scripts/configure-project.js' first.`);
     process.exit(1);
 }
 if (!fs.existsSync(EI_BLOCK_CONFIG)) {
@@ -17,9 +17,17 @@ if (!fs.existsSync(EI_BLOCK_CONFIG)) {
     process.exit(1);
 }
 
-const API_KEY = (fs.readFileSync(Path.join(API_KEY_FILE), 'utf-8')).trim();
-if (!API_KEY.startsWith('ei_')) {
-    console.log(`API Key (in .ei-api-key) does not start with "ei_"`);
+const PROJECT_CONFIG = JSON.parse(fs.readFileSync(PROJECT_CONFIG_FILE, 'utf-8'));
+if (!PROJECT_CONFIG.apiKey || !PROJECT_CONFIG.apiKey.startsWith('ei_')) {
+    console.log(`API key (in .ei-project-config.json) does not start with "ei_"`);
+    process.exit(1);
+}
+if (!Number.isInteger(PROJECT_CONFIG.impulseId)) {
+    console.log(`Missing or invalid impulseId in .ei-project-config.json`);
+    process.exit(1);
+}
+if (!Number.isInteger(PROJECT_CONFIG.learnBlockId)) {
+    console.log(`Missing or invalid learnBlockId in .ei-project-config.json`);
     process.exit(1);
 }
 
@@ -27,8 +35,6 @@ program
     .description('Verify blocks in Edge Impulse')
     .version(packageVersion)
     .option('--push-block', 'Push the block to Edge Impulse')
-    .option('--impulse-id <impulseId>', 'If set, selects a specific impulse')
-    .option('--learn-id <learnId>', 'If set, selects a specific learn block')
     .allowUnknownOption(false)
     .parse(process.argv);
 
@@ -36,8 +42,6 @@ program
 (async () => {
     try {
         const pushBlock = !!program.pushBlock;
-        const impulseId = program.impulseId ? Number(program.impulseId) : undefined;
-        const learnId = program.learnId ? Number(program.learnId) : undefined;
 
         const blockConfig = JSON.parse(await fs.promises.readFile(EI_BLOCK_CONFIG, 'utf-8'));
         if (blockConfig.version !== 2) {
@@ -64,7 +68,7 @@ program
         const api = new EdgeImpulseApi();
         await api.authenticate({
             method: 'apiKey',
-            apiKey: API_KEY,
+            apiKey: PROJECT_CONFIG.apiKey,
         });
 
         // list all projects (if you authenticate via API you just get one, the project for which you have the API key)
@@ -74,40 +78,14 @@ program
         // select impulse / learn block
         let impulseRes = await api.impulse.getAllImpulses(project.id);
 
-        let impulse;
-        if (impulseId) {
-            impulse = impulseRes.impulses.find(x => x.id === impulseId);
-            if (!impulse) {
-                throw new Error(`Could not find impulse with ID ${impulseId} (from --impulse-id)`);
-            }
-        }
-        else {
-            if (impulseRes.impulses.length === 0) {
-                throw new Error(`This project has no impulses`);
-            }
-            if (impulseRes.impulses.length > 1) {
-                throw new Error(`This project has multiple impulses (${impulseRes.impulses.map(x => `${x.name} (ID: ${x.id})`).join(', ')}). ` +
-                    `Specify the impulse via --impulse-id <id>`);
-            }
-            impulse = impulseRes.impulses[0];
+        const impulse = impulseRes.impulses.find(x => x.id === PROJECT_CONFIG.impulseId);
+        if (!impulse) {
+            throw new Error(`Could not find impulse with ID ${PROJECT_CONFIG.impulseId} (from .ei-project-config.json)`);
         }
 
-        let learnBlock;
-        if (learnId) {
-            learnBlock = impulse.learnBlocks.find(x => x.id === learnId);
-            if (!learnBlock) {
-                throw new Error(`Could not find learn block with ID ${learnId} (from --learn-id)`);
-            }
-        }
-        else {
-            if (impulse.learnBlocks.length === 0) {
-                throw new Error(`Impulse has no learn blocks`);
-            }
-            if (impulse.learnBlocks.length > 1) {
-                throw new Error(`This impulse has multiple learn blocks (${impulse.learnBlocks.map(x => `${x.name} (ID: ${x.id})`).join(', ')}). ` +
-                    `Specify the learn block via --learn-id <id>`);
-            }
-            learnBlock = impulse.learnBlocks[0];
+        const learnBlock = impulse.learnBlocks.find(x => x.id === PROJECT_CONFIG.learnBlockId);
+        if (!learnBlock) {
+            throw new Error(`Could not find learn block with ID ${PROJECT_CONFIG.learnBlockId} (from .ei-project-config.json)`);
         }
 
         // and retrain with same config

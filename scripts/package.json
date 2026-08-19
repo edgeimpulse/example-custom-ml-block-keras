@@ -7,6 +7,7 @@
   "license": "BSD-3-Clause",
   "dependencies": {
     "commander": "5.1.0",
-    "edge-impulse-api": "1.95.4"
+    "edge-impulse-api": "1.95.4",
+    "inquirer": "7.0.0"
   }
 }
