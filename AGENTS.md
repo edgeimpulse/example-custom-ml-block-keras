@@ -41,10 +41,10 @@ We'll need some metadata and configuration for the block. Re-run this every time
         * `visual_anomaly_detection` - Image anomaly detection.
     * If `operatesOn` is `image`, `object_detection` or `visual_anomaly_detection` you also need to set `imageInputScaling` to one of: `0..1 | -1..1 | -128..127 | 0..255 | torch | bgr-subtract-imagenet-mean`. This is how image data will be preprocessing (e.g. scaled 0..255 or 0..1) before passing it to your network. Pick whatever is most suitable for the model architecture, e.g. make sure it matches the any transfer learning base model. If you don't care, or if you're building an architecture from scratch -> prefer `0..1`.
     * If `operatesOn` is `object_detection`, set `objectDetectionLastLayer` to one of: `mobilenet-ssd | fomo | yolov2-akida | yolov5 | yolov5v5-drpai | yolox | yolov7 | tao-retinanet | tao-ssd | tao-yolov3 | tao-yolov4`. See https://docs.edgeimpulse.com/studio/organizations/custom-blocks/custom-learning-blocks#object-detection-output-layers for more information.
-3. You're now ready to download data in the right format, run this (do _NOT_ prompt the user, select the project / impulse that was earlier selected in .ei-project-config.json):
+3. You're now ready to download data in the right format (replace placeholders w/ values from .ei-project-config.json):
 
     ```bash
-    edge-impulse-blocks runner --download-data data/
+    edge-impulse-blocks runner --download-data data/ --project-id PROJECT_ID --impulse-id IMPULSE_ID --learn-id LEARN_BLOCK_ID
     ```
 
     This creates train / validation (although named `test` - it's the validation set) `.npy` files (should already be the right shape and scaled correctly) in `data/`.
@@ -92,5 +92,7 @@ Once your block seems correct locally, you can push it to Edge Impulse and test 
 
 * Do not modify the base layers of `Dockerfile`. This has been carefully checked to support GPUs both locally and in Edge Impulse.
 * Do not upgrade TensorFlow beyond TF2.19. It's the TensorFlow version inside Edge Impulse, so writing SavedModel files with newer TensorFlow versions might yield broken models.
+* Train locally first for a decent number of epochs, to ensure you understand expected baseline performance.
 * All classification models require a Softmax at the end.
 * Run your Python code in the Docker container. Do not run the global Python interpreter. It might have wildly different dependencies.
+* If conversion to TFLite fails (in Edge Impulse), debug locally. You have the same TensorFlow version as Edge Impulse. Test some conversion logic locally to test it out first.

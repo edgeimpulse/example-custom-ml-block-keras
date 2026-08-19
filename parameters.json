@@ -3,10 +3,10 @@
     "type": "machine-learning",
     "info": {
         "name": "MobileNetV3 transfer learning",
-        "description": "Image classification transfer learning block using a frozen MobileNetV3-Small ImageNet backbone and a softmax classification head.",
+        "description": "Image classification transfer learning block using a frozen MobileNetV3-Small minimalistic ImageNet backbone and a softmax classification head.",
         "indRequiresGpu": false,
         "operatesOn": "image",
-        "imageInputScaling": "0..1",
+        "imageInputScaling": "0..255",
         "repositoryUrl": "https://github.com/edgeimpulse/example-custom-ml-block-keras"
     },
     "parameters": [

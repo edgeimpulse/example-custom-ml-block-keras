@@ -15,7 +15,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 ENV TF_USE_LEGACY_KERAS=1
 
 # Cache MobileNetV3 ImageNet weights at build time; training runs without network access in Edge Impulse.
-RUN python3 -c "import tensorflow as tf; tf.keras.applications.MobileNetV3Small(input_shape=(224, 224, 3), include_top=False, weights='imagenet', pooling='avg', include_preprocessing=True)"
+RUN python3 -c "import tensorflow as tf; tf.keras.applications.MobileNetV3Small(input_shape=(224, 224, 3), include_top=False, weights='imagenet', pooling='avg', include_preprocessing=False, minimalistic=True)"
 
 # Copy the rest of your training scripts in
 COPY . ./

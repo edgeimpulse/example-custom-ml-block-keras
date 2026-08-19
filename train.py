@@ -56,7 +56,6 @@ inputs = layers.Input(shape=MODEL_INPUT_SHAPE)
 x = inputs
 if MODEL_INPUT_SHAPE[2] == 1:
     x = layers.Concatenate()([x, x, x])
-x = layers.Rescaling(255.0, name='mobilenetv3_input_rescale')(x)
 
 backbone = tf.keras.applications.MobileNetV3Small(
     input_shape=x.shape[1:],
@@ -64,6 +63,7 @@ backbone = tf.keras.applications.MobileNetV3Small(
     weights='imagenet',
     pooling='avg',
     include_preprocessing=True,
+    minimalistic=True,
 )
 backbone.trainable = False
 
