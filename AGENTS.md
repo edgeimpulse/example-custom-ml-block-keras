@@ -24,7 +24,7 @@ Before you start:
 
 We'll need some metadata and configuration for the block. Re-run this every time the user asks you to start a new architecture:
 
-2. If an `.ei-block-config` file does not exist:
+1. If an `.ei-block-config` file does not exist:
     * Run `edge-impulse-blocks init`. If this prompts for a login -> ask the user. For other questions: if you know the answer -> answer it; otherwise relay question to the user.
 2. Update `info` properties in `parameters.json`.
     * For `operatesOn` set this to:
@@ -47,9 +47,6 @@ We'll need some metadata and configuration for the block. Re-run this every time
     ```
 
     This creates train / validation (although named `test` - it's the validation set) `.npy` files (should already be the right shape and scaled correctly) in `data/`.
-
-4.
-
 
 ## Training a model
 
@@ -77,11 +74,18 @@ If you have new parameters you want to add to the block, add them as arguments t
 
 ## Pushing the architecture to Edge Impulse and testing it
 
-Once your block seems correct locally, you can push it to Edge Impulse and test it. To push your block, run:
+Once your block seems correct locally, you can push it to Edge Impulse and test it.
 
-```bash
-edge-impulse-blocks push
-```
+1. Update `scripts/verify-block-in-edge-impulse.js` to reference any new parameters you added to parameters.json (under `customParameters`).
+2. Run:
+
+    ```bash
+    node verify-block-in-edge-impulse.js --push-block
+    ```
+
+    This pushes the block to Edge Impulse, builds the block, trains a new model, and prints the model validation metrics.
+
+3. Verify the model validation metrics (from ^), and make sure they match with what you tested locally (should be the same dataset).
 
 ## Tips & tricks
 
