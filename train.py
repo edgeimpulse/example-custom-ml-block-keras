@@ -1,8 +1,7 @@
 import argparse, os, sys, random, logging
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
+from tensorflow.keras import layers, Model
 from tensorflow.keras.optimizers import Adam
 from conversion import save_saved_model
 
@@ -37,6 +36,10 @@ Y_test = np.load(os.path.join(args.data_directory, 'Y_split_test.npy'))
 classes = Y_train.shape[1]
 
 MODEL_INPUT_SHAPE = X_train.shape[1:]
+if len(MODEL_INPUT_SHAPE) != 3:
+    raise ValueError(f'MobileNetV3 expects image input shaped (height, width, channels), got {MODEL_INPUT_SHAPE}')
+if MODEL_INPUT_SHAPE[2] not in (1, 3):
+    raise ValueError(f'MobileNetV3 expects 1-channel or 3-channel image input, got {MODEL_INPUT_SHAPE[2]} channels')
 
 train_dataset = tf.data.Dataset.from_tensor_slices((X_train, Y_train))
 validation_dataset = tf.data.Dataset.from_tensor_slices((X_test, Y_test))
@@ -49,12 +52,25 @@ print('')
 callbacks = []
 
 # model architecture
-model = Sequential()
-model.add(Dense(20, activation='relu',
-    activity_regularizer=tf.keras.regularizers.l1(0.00001)))
-model.add(Dense(10, activation='relu',
-    activity_regularizer=tf.keras.regularizers.l1(0.00001)))
-model.add(Dense(classes, activation='softmax', name='y_pred'))
+inputs = layers.Input(shape=MODEL_INPUT_SHAPE)
+x = inputs
+if MODEL_INPUT_SHAPE[2] == 1:
+    x = layers.Concatenate()([x, x, x])
+x = layers.Rescaling(255.0, name='mobilenetv3_input_rescale')(x)
+
+backbone = tf.keras.applications.MobileNetV3Small(
+    input_shape=x.shape[1:],
+    include_top=False,
+    weights='imagenet',
+    pooling='avg',
+    include_preprocessing=True,
+)
+backbone.trainable = False
+
+x = backbone(x, training=False)
+x = layers.Dropout(0.2)(x)
+outputs = layers.Dense(classes, activation='softmax', name='y_pred')(x)
+model = Model(inputs=inputs, outputs=outputs)
 
 # this controls the learning rate
 opt = Adam(learning_rate=args.learning_rate, beta_1=0.9, beta_2=0.999)

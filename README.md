@@ -1,6 +1,6 @@
 # Custom Keras ML block example for Edge Impulse
 
-This repository is an example on how to [add a custom learning block](https://docs.edgeimpulse.com/docs/edge-impulse-studio/learning-blocks/adding-custom-learning-blocks) to Edge Impulse. This repository contains a small fully-connected model built in Keras & TensorFlow. If you want to see a more complex example, see [edgeimpulse/efficientnet](https://github.com/edgeimpulse/example-custom-ml-block-efficientnet). Or if you're looking for the PyTorch version of this repository, see [edgeimpulse/example-custom-ml-block-pytorch](https://github.com/edgeimpulse/example-custom-ml-block-pytorch).
+This repository is an example on how to [add a custom learning block](https://docs.edgeimpulse.com/docs/edge-impulse-studio/learning-blocks/adding-custom-learning-blocks) to Edge Impulse. This repository contains a MobileNetV3 transfer learning image classifier built in Keras & TensorFlow. If you want to see a more complex example, see [edgeimpulse/efficientnet](https://github.com/edgeimpulse/example-custom-ml-block-efficientnet). Or if you're looking for the PyTorch version of this repository, see [edgeimpulse/example-custom-ml-block-pytorch](https://github.com/edgeimpulse/example-custom-ml-block-pytorch).
 
 As a primer, read the [Custom learning blocks](https://docs.edgeimpulse.com/docs/edge-impulse-studio/learning-blocks/adding-custom-learning-blocks) page in the Edge Impulse docs.
 
@@ -12,8 +12,8 @@ You run this pipeline via Docker. This encapsulates all dependencies and package
 
 1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/).
 2. Install the [Edge Impulse CLI](https://docs.edgeimpulse.com/docs/edge-impulse-cli/cli-installation) v1.16.0 or higher.
-3. Create a new Edge Impulse project, and add data from the [continuous gestures](https://docs.edgeimpulse.com/docs/continuous-gestures) dataset.
-4. Under **Create impulse** add a 'Spectral features' processing block, and a random ML block.
+3. Create a new Edge Impulse project, and add image classification data.
+4. Under **Create impulse** add an image processing block, and a random image classification ML block.
 5. Open a command prompt or terminal window.
 6. Initialize the block:
 
@@ -38,19 +38,19 @@ You run this pipeline via Docker. This encapsulates all dependencies and package
     **macOS, Linux**
 
     ```
-    $ docker run --rm -v $PWD:/app custom-ml-keras --data-directory /app/data --epochs 30 --learning-rate 0.01 --out-directory out/
+    $ docker run --network=none --rm -v $PWD:/app custom-ml-keras --data-directory /app/data --epochs 30 --learning-rate 0.001 --out-directory out/
     ```
 
     **Windows (Command prompt)**
 
     ```
-    $ docker run --rm -v "%cd%":/app custom-ml-keras --data-directory /app/data --epochs 30 --learning-rate 0.01 --out-directory out/
+    $ docker run --network=none --rm -v "%cd%":/app custom-ml-keras --data-directory /app/data --epochs 30 --learning-rate 0.001 --out-directory out/
     ```
 
     **Windows (Powershell)**
 
     ```
-    $ docker run --rm -v ${PWD}$:/app custom-ml-keras --data-directory /app/data --epochs 30 --learning-rate 0.01 --out-directory out/
+    $ docker run --network=none --rm -v ${PWD}$:/app custom-ml-keras --data-directory /app/data --epochs 30 --learning-rate 0.001 --out-directory out/
     ```
 
     > **Training on GPU:** If you're on an x86 machine with an Nvidia GPU, you can pass `--gpus=all` (right after `docker run`) to train on GPU.
@@ -99,3 +99,11 @@ $ edge-impulse-blocks init
 ```
 
 And answer the wizard. This'll create a new parameters.json file.
+
+## Working with coding agents
+
+You can use your favourite AI agent to help you implement new custom ML blocks. E.g. prompt:
+
+```
+Modify this repository so it implements a MobileNetV3 transfer learning block. Read AGENTS.md first.
+```

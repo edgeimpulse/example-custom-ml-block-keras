@@ -45,7 +45,7 @@ program
         const pushBlock = !!program.pushBlock;
         const skipTraining = !!program.skipTraining;
 
-        const blockConfig = JSON.parse(await fs.promises.readFile(EI_BLOCK_CONFIG, 'utf-8'));
+        let blockConfig = JSON.parse(await fs.promises.readFile(EI_BLOCK_CONFIG, 'utf-8'));
         if (blockConfig.version !== 2) {
             throw new Error(`${EI_BLOCK_CONFIG}, version is not "2" but "${blockConfig.version}"`);
         }
@@ -56,13 +56,17 @@ program
             console.log(blockConfig.config['edgeimpulse.com']);
             throw new Error(`${EI_BLOCK_CONFIG}, missing "config[edgeimpulse.com][organizationId]". Did you run 'edge-impulse-blocks init'`);
         }
-        if (!blockConfig.config['edgeimpulse.com']['id']) {
+        if (!pushBlock && !blockConfig.config['edgeimpulse.com']['id']) {
             throw new Error(`${EI_BLOCK_CONFIG}, missing "config[edgeimpulse.com][id]". Did you run 'edge-impulse-blocks push'`);
         }
 
         if (pushBlock) {
             console.log('Pushing block...')
             await spawnHelper('edge-impulse-blocks', ['push'], { cwd: Path.join(__dirname, '..') });
+            blockConfig = JSON.parse(await fs.promises.readFile(EI_BLOCK_CONFIG, 'utf-8'));
+            if (!blockConfig.config['edgeimpulse.com']['id']) {
+                throw new Error(`${EI_BLOCK_CONFIG}, missing "config[edgeimpulse.com][id]" after 'edge-impulse-blocks push'`);
+            }
             console.log('Pushing block OK');
             console.log('');
         }

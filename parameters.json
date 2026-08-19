@@ -2,10 +2,11 @@
     "version": 1,
     "type": "machine-learning",
     "info": {
-        "name": "Keras multi-layer perceptron",
-        "description": "Demonstration of a simple Keras custom learn block with CUDA drivers that can run on both CPU and GPU.",
+        "name": "MobileNetV3 transfer learning",
+        "description": "Image classification transfer learning block using a frozen MobileNetV3-Small ImageNet backbone and a softmax classification head.",
         "indRequiresGpu": false,
-        "operatesOn": "other",
+        "operatesOn": "image",
+        "imageInputScaling": "0..1",
         "repositoryUrl": "https://github.com/edgeimpulse/example-custom-ml-block-keras"
     },
     "parameters": [

@@ -8,7 +8,9 @@ Some background links:
 
 ## Verifying setup
 
-Before you start:
+This section is a mandatory startup gate for any request to create, modify, or test a custom ML block. Do not inspect model code, edit files, build training logic, or run training checks until all steps in this section have been completed or explicitly blocked by the user.
+
+For every step, report the result before continuing. If a required command is cancelled, fails, or prompts for a secret, stop the implementation work and tell the user exactly what is needed next.
 
 1. Ensure the [Edge Impulse CLI](https://docs.edgeimpulse.com/tools/clis/edge-impulse-cli) is installed. `edge-impulse-blocks` should be in your PATH.
 2. Ensure Docker Desktop is installed. If it's not, prompt the user to install it.
@@ -19,6 +21,8 @@ Before you start:
     ```
 
     Afterwards you should have an `.ei-project-config.json` file.
+
+Do not treat this as optional. If you can run the command yourself, run it. If you cannot run it because it needs user input, ask for the non-secret input through the chat tools. If it needs a password, API key, token, or other secret, tell the user to type it directly into the terminal.
 
 ## Preparing a new block
 
@@ -37,13 +41,10 @@ We'll need some metadata and configuration for the block. Re-run this every time
         * `visual_anomaly_detection` - Image anomaly detection.
     * If `operatesOn` is `image`, `object_detection` or `visual_anomaly_detection` you also need to set `imageInputScaling` to one of: `0..1 | -1..1 | -128..127 | 0..255 | torch | bgr-subtract-imagenet-mean`. This is how image data will be preprocessing (e.g. scaled 0..255 or 0..1) before passing it to your network. Pick whatever is most suitable for the model architecture, e.g. make sure it matches the any transfer learning base model. If you don't care, or if you're building an architecture from scratch -> prefer `0..1`.
     * If `operatesOn` is `object_detection`, set `objectDetectionLastLayer` to one of: `mobilenet-ssd | fomo | yolov2-akida | yolov5 | yolov5v5-drpai | yolox | yolov7 | tao-retinanet | tao-ssd | tao-yolov3 | tao-yolov4`. See https://docs.edgeimpulse.com/studio/organizations/custom-blocks/custom-learning-blocks#object-detection-output-layers for more information.
-3. You're now ready to download data in the right format, run:
+3. You're now ready to download data in the right format, run this (do _NOT_ prompt the user, select the project / impulse that was earlier selected in .ei-project-config.json):
 
     ```bash
     edge-impulse-blocks runner --download-data data/
-
-    # If this prompts for a project -> select the same project that matches .ei-project-config.json
-    # If this prompts for an impulse -> select the same impulse that matches .ei-project-config.json
     ```
 
     This creates train / validation (although named `test` - it's the validation set) `.npy` files (should already be the right shape and scaled correctly) in `data/`.
@@ -92,3 +93,4 @@ Once your block seems correct locally, you can push it to Edge Impulse and test 
 * Do not modify the base layers of `Dockerfile`. This has been carefully checked to support GPUs both locally and in Edge Impulse.
 * Do not upgrade TensorFlow beyond TF2.19. It's the TensorFlow version inside Edge Impulse, so writing SavedModel files with newer TensorFlow versions might yield broken models.
 * All classification models require a Softmax at the end.
+* Run your Python code in the Docker container. Do not run the global Python interpreter. It might have wildly different dependencies.
