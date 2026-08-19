@@ -12,25 +12,19 @@ Before you start:
 
 1. Ensure the [Edge Impulse CLI](https://docs.edgeimpulse.com/tools/clis/edge-impulse-cli) is installed. `edge-impulse-blocks` should be in your PATH.
 2. Ensure Docker Desktop is installed. If it's not, prompt the user to install it.
-3. Prompt the user for an API key to an Edge Impulse project. This project should match the type of the custom ML block they want to develop (e.g. image classification, object detection, or plain classification/regression). Verify that you can make a `GET` request to `https://studio.edgeimpulse.com/v1/api/projects/api-key-info` (set `x-api-key` header to the API key) - and that the `role` (in the response of the GET request) of the API key is `admin`.
-4. Prompt the user for an impulse (`GET` request to `https://studio.edgeimpulse.com/v1/api/PROJECT_ID/impulses`) (use PROJECT_ID from step 3).
-5. Create a file `.ei-info` with:
+3. Tell the user to run:
 
     ```
-    {
-        "projectId": XXX,
-        "projectApiKey": YYY,
-        "impulseId": ZZZ
-    }
+    cd scripts && npm ci && node configure-project.js
     ```
 
-    (With the values retrieved in the previous steps)
+    Afterwards you should have an `.ei-project-config.json` file.
 
 ## Preparing a new block
 
 We'll need some metadata and configuration for the block. Re-run this every time the user asks you to start a new architecture:
 
-1. If an `.ei-block-config` file does not exist:
+2. If an `.ei-block-config` file does not exist:
     * Run `edge-impulse-blocks init`. If this prompts for a login -> ask the user. For other questions: if you know the answer -> answer it; otherwise relay question to the user.
 2. Update `info` properties in `parameters.json`.
     * For `operatesOn` set this to:
@@ -48,8 +42,8 @@ We'll need some metadata and configuration for the block. Re-run this every time
     ```bash
     edge-impulse-blocks runner --download-data data/
 
-    # If this prompts for a project -> select the same project that matches .ei-api-key
-    # If this prompts for an impulse -> ask the user. Also store the impulse that the user picked in .
+    # If this prompts for a project -> select the same project that matches .ei-project-config.json
+    # If this prompts for an impulse -> select the same impulse that matches .ei-project-config.json
     ```
 
     This creates train / validation (although named `test` - it's the validation set) `.npy` files (should already be the right shape and scaled correctly) in `data/`.

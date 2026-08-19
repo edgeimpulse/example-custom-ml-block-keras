@@ -104,12 +104,16 @@ program
         await fs.promises.writeFile(PROJECT_CONFIG_FILE, JSON.stringify({
             apiKey,
             impulseId: clonedImpulse.id,
+            impulseName: clonedImpulse.name,
             learnBlockId: learnBlock.id,
+            learnBlockName: learnBlock.name,
         }, null, 4) + '\n');
 
         console.log('');
         console.log(`Cloned impulse ID ${clonedImpulse.id}`);
+        console.log(`Cloned impulse name ${clonedImpulse.name}`);
         console.log(`Selected learn block ID ${learnBlock.id}`);
+        console.log(`Selected learn block name ${learnBlock.name}`);
         console.log(`Wrote ${PROJECT_CONFIG_FILE}`);
     }
     catch (ex) {
