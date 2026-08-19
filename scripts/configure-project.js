@@ -102,6 +102,7 @@ program
         const learnBlock = await selectLearnBlock(clonedImpulse.learnBlocks);
 
         await fs.promises.writeFile(PROJECT_CONFIG_FILE, JSON.stringify({
+            projectId: projectId,
             apiKey,
             impulseId: clonedImpulse.id,
             impulseName: clonedImpulse.name,

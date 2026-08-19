@@ -7,3 +7,5 @@ out/
 .DS_Store
 .ei-project-config.json
 scripts/node_modules/
+out-*/
+out*.log
