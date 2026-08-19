@@ -1,4 +1,4 @@
-# Simple Ubuntu 24.04 base block with CUDA setup already
+# Simple Ubuntu 24.04 base image with Python3.12 and CUDA setup already (for GPU training)
 FROM public.ecr.aws/z9b3d4t5/ei-custom-ml-block-base:v1.95.5-test-9e8dfa82
 
 # https://stackoverflow.com/questions/43147983/could-not-create-cudnn-handle-cudnn-status-internal-error
