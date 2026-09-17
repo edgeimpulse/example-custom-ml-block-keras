@@ -1,5 +1,5 @@
 # Simple Ubuntu 24.04 base image with Python3.12 and CUDA setup already (for GPU training)
-FROM public.ecr.aws/g7a8t7v6/ei-custom-ml-block-base:v1.95.5
+FROM public.ecr.aws/g7a8t7v6/ei-custom-ml-block-base:v1.95.10
 
 # https://stackoverflow.com/questions/43147983/could-not-create-cudnn-handle-cudnn-status-internal-error
 ENV TF_FORCE_GPU_ALLOW_GROWTH=true

@@ -5,3 +5,4 @@ scripts/
 .ei-project-config.json
 out-*/
 out*.log
+__pycache__/
