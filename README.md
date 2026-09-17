@@ -11,7 +11,7 @@ You run this pipeline via Docker. This encapsulates all dependencies and package
 ### Running via Docker
 
 1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/).
-2. Install the [Edge Impulse CLI](https://docs.edgeimpulse.com/docs/edge-impulse-cli/cli-installation) v1.16.0 or higher.
+2. Install the latest version of the [Edge Impulse CLI](https://docs.edgeimpulse.com/docs/edge-impulse-cli/cli-installation).
 3. Create a new Edge Impulse project, and add data from the [continuous gestures](https://docs.edgeimpulse.com/docs/continuous-gestures) dataset.
 4. Under **Create impulse** add a 'Spectral features' processing block, and a random ML block.
 5. Open a command prompt or terminal window.
