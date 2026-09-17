@@ -38,19 +38,19 @@ You run this pipeline via Docker. This encapsulates all dependencies and package
     **macOS, Linux**
 
     ```
-    $ docker run --rm -v $PWD:/app custom-ml-keras --data-directory /app/data --epochs 30 --learning-rate 0.01 --out-directory out/
+    $ docker run --network=none --rm -v $PWD:/app custom-ml-keras --data-directory /app/data --epochs 30 --learning-rate 0.01 --out-directory out/
     ```
 
     **Windows (Command prompt)**
 
     ```
-    $ docker run --rm -v "%cd%":/app custom-ml-keras --data-directory /app/data --epochs 30 --learning-rate 0.01 --out-directory out/
+    $ docker run --network=none --rm -v "%cd%":/app custom-ml-keras --data-directory /app/data --epochs 30 --learning-rate 0.01 --out-directory out/
     ```
 
     **Windows (Powershell)**
 
     ```
-    $ docker run --rm -v ${PWD}$:/app custom-ml-keras --data-directory /app/data --epochs 30 --learning-rate 0.01 --out-directory out/
+    $ docker run --network=none --rm -v ${PWD}$:/app custom-ml-keras --data-directory /app/data --epochs 30 --learning-rate 0.01 --out-directory out/
     ```
 
     > **Training on GPU:** If you're on an x86 machine with an Nvidia GPU, you can pass `--gpus=all` (right after `docker run`) to train on GPU.
@@ -99,3 +99,11 @@ $ edge-impulse-blocks init
 ```
 
 And answer the wizard. This'll create a new parameters.json file.
+
+## Working with coding agents
+
+You can use your favourite AI agent to help you implement new custom ML blocks. E.g. prompt:
+
+```
+Modify this repository so it implements a MobileNetV3 transfer learning block. Read AGENTS.md first.
+```

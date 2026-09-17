@@ -1,4 +1,8 @@
 data/
 out/
-__pycache__/
+scripts/
 .ei-block-config
+.ei-project-config.json
+out-*/
+out*.log
+__pycache__/
