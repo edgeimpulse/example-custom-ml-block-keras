@@ -48,19 +48,10 @@ program
         }
 
         const projectId = apiKeyInfo.projectId;
-        const projects = (await api.projects.listProjects()).projects;
-        const project = projects.find(x => x.id === projectId) || projects[0];
-        if (project) {
-            console.log('Project:', project.owner, '/', project.name);
-        }
-        else {
-            console.log('Project ID:', projectId);
-        }
+        const project = (await api.projects.listProjects()).projects[0];
+        console.log('Project:', project.owner, '/', project.name);
 
         const impulseRes = await api.impulse.getAllImpulses(projectId);
-        if (!impulseRes.success) {
-            throw new Error(impulseRes.error || 'Could not list impulses');
-        }
         const defaultImpulses = impulseRes.impulses.filter(x => x.type === 'default');
         if (defaultImpulses.length === 0) {
             throw new Error('This project has no default impulses to clone');
